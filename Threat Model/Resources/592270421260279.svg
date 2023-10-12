@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 849 355.8" style="enable-background:new 0 0 849 355.8;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#525A6E;stroke-width:1.86;stroke-miterlimit:10;}
+	.st1{fill:#A490BB;}
+	.st2{fill:#1A1818;}
+	.st3{font-family:'Roboto-Regular';}
+	.st4{font-size:19px;}
+	.st5{font-size:11px;}
+	.st6{fill:none;stroke:#525A6E;stroke-width:2.06;stroke-miterlimit:10;}
+	.st7{fill:#BFB2CC;}
+	.st8{font-size:13.75px;}
+</style>
+<line class="st0" x1="247.4" y1="183.2" x2="679.3" y2="183.2"/>
+<path class="st1" d="M39.1,149.6h210c2.2,0,3.9,1.8,3.9,3.9V215c0,2.2-1.8,3.9-3.9,3.9h-210c-2.2,0-3.9-1.8-3.9-3.9v-61.5
+	C35.2,151.3,36.9,149.6,39.1,149.6z"/>
+<text transform="matrix(1 0 0 1 77.09 179.34)" class="st2 st3 st4">Synopsys Threat </text>
+<text transform="matrix(1 0 0 1 65.23 202.14)" class="st2 st3 st4">Modeling Approach</text>
+<path class="st0" d="M342.1,77.6V36.2c0.1-4.2,3.5-7.5,7.6-7.4H465"/>
+<path class="st0" d="M342.1,108.5V67.1c0.1-4.2,3.5-7.5,7.6-7.4H465"/>
+<path class="st0" d="M342.1,140.1V98.7c0.1-4.2,3.5-7.5,7.6-7.4H465"/>
+<path class="st0" d="M342.1,171.4V130c0.1-4.2,3.5-7.5,7.6-7.4H465"/>
+<path class="st0" d="M342.1,182.7v-21.4c0.1-4.2,3.5-7.5,7.6-7.4H465"/>
+<text transform="matrix(1 0 0 1 352.98 23.38)" class="st2 st3 st5">Compound Diagram</text>
+<text transform="matrix(1 0 0 1 352.98 54.7)" class="st2 st3 st5">Identify Assets</text>
+<text transform="matrix(1 0 0 1 352.98 85.62)" class="st2 st3 st5">Identify Controls</text>
+<text transform="matrix(1 0 0 1 352.98 117.23)" class="st2 st3 st5">Identify Trust Zones</text>
+<text transform="matrix(1 0 0 1 352.98 148.49)" class="st2 st3 st5">Identify Threat Agents</text>
+<text transform="matrix(1 0 0 1 558.77 236.94)" class="st2 st3 st5">Hardware/Software Security</text>
+<text transform="matrix(1 0 0 1 558.77 268.32)" class="st2 st3 st5">Dataflow Secuirty</text>
+<text transform="matrix(1 0 0 1 558.77 299.24)" class="st2 st3 st5">Data Security</text>
+<text transform="matrix(1 0 0 1 558.77 330.95)" class="st2 st3 st5">Operational Security</text>
+<path class="st6" d="M547.9,288.5v41.4c0,4.1,4.2,7.4,9.4,7.4h142.2"/>
+<path class="st6" d="M547.9,256.9v41.4c0,4.1,4.2,7.4,9.4,7.4h142.2"/>
+<path class="st6" d="M547.9,225.6V267c0,4.1,4.2,7.4,9.4,7.4h142.2"/>
+<path class="st6" d="M547.9,194.2v41.5c0,4.1,4.2,7.4,9.4,7.4h142.2"/>
+<path class="st0" d="M744.2,171.4V130c0.1-4.2,3.5-7.5,7.6-7.4c0,0,0,0,0,0h75.3"/>
+<path class="st0" d="M744.2,182.7v-21.4c0.1-4.2,3.5-7.5,7.6-7.4c0,0,0,0,0,0h75.3"/>
+<text transform="matrix(1 0 0 1 755.12 117.23)" class="st2 st3 st5">Impact</text>
+<text transform="matrix(1 0 0 1 755.12 148.49)" class="st2 st3 st5">Likelihood</text>
+<path class="st7" d="M271.6,168.3h141c2.2,0,3.9,1.8,3.9,3.9v22.5c0,2.2-1.8,3.9-3.9,3.9h-141c-2.2,0-3.9-1.8-3.9-3.9v-22.5
+	C267.6,170,269.4,168.3,271.6,168.3z"/>
+<text transform="matrix(1 0 0 1 278.68 187.7)" class="st2 st3 st8">Model the Application</text>
+<path class="st7" d="M495.9,168.3h104c2.2,0,3.9,1.8,3.9,3.9v22.5c0,2.2-1.8,3.9-3.9,3.9h-104c-2.2,0-3.9-1.8-3.9-3.9v-22.5
+	C491.9,170,493.7,168.3,495.9,168.3z"/>
+<text transform="matrix(1 0 0 1 502.93 187.7)" class="st2 st3 st8">Threat Analysis</text>
+<path class="st7" d="M683.2,168.3h122c2.2,0,3.9,1.8,3.9,3.9v22.5c0,2.2-1.8,3.9-3.9,3.9h-122c-2.2,0-3.9-1.8-3.9-3.9v-22.5
+	C679.3,170,681,168.3,683.2,168.3z"/>
+<text transform="matrix(1 0 0 1 690.7 187.7)" class="st2 st3 st8">Threat Priotization</text>
+</svg>
