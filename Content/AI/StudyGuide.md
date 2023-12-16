@@ -49,6 +49,8 @@
 **Question 1**
 Q: Explain the difference between static and dynamic word embeddings.
 A: Static word embeddings provide a fixed vector representation for each word, regardless of context. They are learned during a training phase and remain constant thereafter. Dynamic embeddings, on the other hand, adjust the vector representation of words based on the surrounding context, changing continuously as the model processes text.
+![dynamic embeddings changing weights through the layers](Resources/layer1-layer2-word-embedding-vectors.png)
+
 
 **Question 2**
 Q: How do Transformer models utilize layers to process word embeddings?
