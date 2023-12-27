@@ -66,7 +66,19 @@
 3. What is the role of self-attention in a Transformer model?
 **Expected Answer**: Self-attention allows the model to focus on different parts of the input sequence when processing a specific part of that sequence. It computes attention scores to decide how much focus to put on other parts of the input when encoding or decoding a particular part.
 4. How does the Transformer model handle positional information?
-**Expected Answer**: Transformers use positional encodings to maintain the order of the sequence. These encodings are added to the input embeddings to provide the model with information about the position of each element in the sequence.
+**Expected Answer**: Transformers use positional encodings to maintain the order of the sequence. These encodings are added to the input embeddings to provide the model with information about the position of each element in the sequence. 
+
+1. What is positional encoding?
+**Expected Answer**: Position encodings are added to the input embeddings at the bottom of the Transformer model. These encodings can take different forms, but they all serve the same purpose: to give the model a way to infer the order of the sequence elements. Transformers process all elements simultaneously (in parallel), so they don't have a way of recognizing the order of elements unless this information is explicitly provided. The reason this is important is because if we had the sentence `write a story.` and then another sentence `a . story write` we can see that these are two distinct sentence with the second one being nonsense. However, without positional encoding they would end up as the same vector representation and lack the context of position. This is accomplished by adding some sequence to the word embeddings in order to move them around to perturb the order.
+
+1. What is softmax?
+**Expected Answer**: Softmax is a mathematical function commonly used in machine learning. It converts a vector of raw scores (often called logits) into a probability distribution. In the case of transformers the function is: $$\frac{e^{x}}{d_k}$$
+
+1. What parts of a transformer uses softmax and why?
+**Expected Answer**: 
+   * Attention Mechanism: attention scores are calculated using the softmax function on scaled dot products of queries and keys. This scaling helps in stabilizing the gradients during training. The softmax function here converts these raw scores into a probability distribution, indicating the relative importance of each value in the input sequence
+   * Softmax in Output Layer: softmax is also commonly used in the output layer of Transformers for tasks like classification and language modeling. It provides a probability distribution over possible output tokens (e.g., words in language models), aiding in the generation of coherent and contextually relevant text.
+
 
 1. What is the significance of using multiple encoders and decoders in the Transformer model?
 **Expected Answer**: The use of multiple encoders and decoders in the Transformer model allows for a deeper level of processing and understanding of the input and output sequences. Each encoder and decoder layer adds a level of abstraction, enabling the model to capture more complex patterns and relationships within the data. This stacking of layers contributes to the model's ability to handle complex translation tasks and understand the nuances of language.
