@@ -1,27 +1,77 @@
 ## Study Guide
 
+#### Topics
+1. Transformers
+2. Encoder-decoder
+3. Self-attention
+4. Feedforward
+5. Softmax
+6. 
+
+#### Questions
+1. What are Transformers in the context of machine learning?
+1. What are the sub-layers within each encoder and decoder of the Transformer, and how do they function?
+1. How are input words processed in the Transformer model?
+1. How are transformers different from previous sequence models like RNNs and LSTMs?
+2. Can you describe the historical development of Transformer models? When were they introduced, and what were the key advancements they brought?
+3. Explain the basic architecture of a Transformer model, highlighting the roles of the encoder and decoder.
+4. What is self-attention in Transformers, and how does it differ from traditional attention mechanisms?
+6. Can you explain the concept of multi-head attention in Transformers and its benefits?
+7. Describe the feed-forward networks in Transformer models. What is their role?
+8. What are layer normalization and dropout in the context of Transformers, and why are they used?
+9. How are Transformers trained, especially considering their parallelizable architecture?
+10. What are some common applications and tasks where Transformer models are particularly effective?
+1. What are Query, Key, and Value vectors in the context of self-attention, and how are they used?
+1. What is the difference between Query, Key matrices and the Value Matrix?
+1. What is the mathematical transformation that the Key and Query matrix? are doing and why is it useful?
+1. Describe the steps involved in the calculation of self-attention.
+1. How does the Transformer model use matrix operations in self-attention calculation?
+1. What is multi-headed attention in the Transformer model, and what are its advantages?
+1. How does positional encoding work in the Transformer model?
+1. What role do residual connections and layer normalization play in the Transformer model?
+1. Explain the role of the decoder in the Transformer model.
+1. Describe the final linear and softmax layers in the Transformer's decoder.
+1. What are the three ways to calculate similarity?
+1. What is the role of the loss function during training?
+3. What is the role of self-attention in a Transformer model?
+4. How does the Transformer model handle positional information?
+1. What is positional encoding?
+1. What is softmax?
+1. What parts of a transformer uses softmax and why?
+1. What is the significance of using multiple encoders and decoders in the Transformer model?
+1. How does the Transformer model handle long-range dependencies in sequences?
+1. Explain the importance of layer normalization in the Transformer architecture.
+1. Describe the training process of the Transformer model in terms of data requirements and computational efficiency.
+5. Explain the multi-head attention mechanism in Transformers.
+6. How does the GPT (Generative Pre-trained Transformer) architecture differ from the standard Transformer model?
+7. Can you describe the process of training a Transformer model like GPT?
+8. What are some challenges in implementing Transformers at scale?
+Q: Explain the difference between static and dynamic word embeddings.
+Q: How do Transformer models utilize layers to process word embeddings?
+Q: Describe the process and significance of the self-attention mechanism in Transformer models.
+Q: In the context of next-word prediction, how does a model like GPT-4 generate a new word?
+Q: What happens to the word embeddings when a new word is generated and added to the sentence in a language model?
+Q: Explain the role of dimensionality in word embeddings and why high-dimensional spaces are used.
+Q: Discuss the computational challenges in managing dynamic embeddings in large-scale models like GPT-4.
+
 ### Basic Understanding
 
 1. What are Transformers in the context of machine learning?
 **Expected Answer** : Transformers are a type of deep learning model that primarily uses self-attention mechanisms to process sequential data. Unlike previous models like RNNs and LSTMs, Transformers handle sequences in parallel, which allows for more efficient training and better handling of long-range dependencies.
-2. What are long-range dependencies in the context of sequence processing and why they are important in machine learning models and provide an example?
-**Expected Answer**: Long-range dependencies refer to the relationships or connections between elements in a sequence that are separated by a significant number of intermediate elements. They are important because they represent how elements at distant positions in a sequence can influence each other. In machine learning models, effectively capturing long-range dependencies is crucial for tasks where understanding global context and relationships across distant elements is necessary, such as natural language understanding, machine translation, and more. For example, in natural language processing (NLP), consider a sentence like: "The cat that I saw on the street was cute." Here, the word "cat" and the word "cute" are separated by several other words, but there is a grammatical and semantic relationship between them. Recognizing this relationship requires the model to capture long-range dependencies in the sequence. raditional sequence models like recurrent neural networks (RNNs) and long short-term memory networks (LSTMs) have limitations in capturing long-range dependencies effectively because they process sequences sequentially, and information from distant positions may get diluted or lost over time. Transformers, on the other hand, are designed to handle long-range dependencies more efficiently by using self-attention mechanisms, which allow them to consider and weigh the importance of all elements in the sequence simultaneously. This parallel processing capability makes Transformers particularly well-suited for tasks where understanding global context and relationships across distant elements in a sequence is essential, such as machine translation and text generation
 1. What are the sub-layers within each encoder and decoder of the Transformer, and how do they function?
 **Expected Answer**: Each encoder in the Transformer model consists of two sub-layers: a self-attention layer and a feed-forward neural network. The self-attention layer allows the encoder to consider other words in the input sentence for better word encoding. The feed-forward network processes the output of the self-attention layer. Decoders also have these layers, with an additional attention layer to focus on relevant parts of the input sentence​​.
 1. How are input words processed in the Transformer model?
 **Expected Answer**: In the Transformer model, each input word is converted into a 512-dimensional vector using an embedding algorithm. This embedding happens in the bottom-most encoder, and each encoder receives a list of such vectors, either as word embeddings or as outputs from the previous encoder
-2. Can you explain the basic architecture of a Transformer model?
-**Expected Answer**: A Transformer model typically consists of an encoder and a decoder. Each of these is composed of layers that include self-attention mechanisms and feed-forward neural networks. The self-attention mechanism allows the model to weigh the importance of different parts of the input data.
-1. What are Transformers in the context of machine learning, and how do they differ from previous sequence models like RNNs and LSTMs?
+1. How are transformers different from previous sequence models like RNNs and LSTMs?
 **Expected Answer**: Transformers are a type of deep learning model designed to handle sequential data, primarily using self-attention mechanisms. Unlike RNNs and LSTMs, which process data sequentially, Transformers process entire sequences in parallel, allowing for more efficient training and better handling of long-range dependencies.
 2. Can you describe the historical development of Transformer models? When were they introduced, and what were the key advancements they brought?
 **Expected Answer**: Transformers were introduced in 2017 by Vaswani et al. in the paper "Attention Is All You Need." The key advancements included the introduction of the self-attention mechanism, which allowed for parallel processing of sequences and better handling of long-range dependencies, marking a significant departure from the RNN and LSTM models.
-3. Explain the basic architecture of a Transformer model, highlighting the roles of the encoder and decoder.
+3. Explain the basic architecture of a Transformer model.
 **Expected Answer**: The basic architecture of a Transformer includes an encoder and a decoder. The encoder processes the input data and the decoder generates the output. Each consists of layers that include self-attention mechanisms and feed-forward neural networks. The encoder captures the context of the input sequence, while the decoder uses this context to produce the output sequence.
 4. What is self-attention in Transformers, and how does it differ from traditional attention mechanisms?
 **Expected Answer**: [Self-attention](Models/self-attention.md), a key component of Transformers, allows each position in the sequence to attend to all positions in the previous layer of the model, thus enabling parallel processing. It differs from traditional attention mechanisms by focusing on different parts of the same input sequence to compute the representation.
-5. How do Transformers handle positional information in sequences, and why is this important?
-**Expected Answer**: Transformers use positional encodings to maintain the order of the sequence. Positional encodings are added to the input embeddings to give the model information about the position of each element in the sequence. This is crucial because Transformers do not inherently process data in order, unlike RNNs or LSTMs.
+1. What are the three ways to calculate similarity?
+**Expected Answer**: Dot product, Cosine similarity, Scaled dot product.
 6. Can you explain the concept of multi-head attention in Transformers and its benefits?
 **Expected Answer**: Multi-head attention splits the attention mechanism into multiple heads, allowing the model to simultaneously attend to information at different positions and from different representational spaces. This enables the model to capture a richer understanding of the input.
 7. Describe the feed-forward networks in Transformer models. What is their role?
@@ -34,6 +84,10 @@
 **Expected Answer**: Transformer models have been highly effective in various natural language processing tasks such as language translation, text generation, summarization, and question-answering. They are also being adapted for applications in other domains like image processing and music generation.
 1. What are Query, Key, and Value vectors in the context of self-attention, and how are they used?
 **Expected Answer**: In self-attention, each word's embedding is used to create three vectors: Query, Key, and Value. These vectors are generated by multiplying the embedding by trained matrices. They are instrumental in calculating attention, where the dot product of the Query vector of one word with the Key vector of another determines the attention score, reflecting the importance of other words when encoding a specific word
+1. What is the difference between Query, Key matrices and the Value Matrix?
+**Expected Answer**: The Query and Key matrices are used to manipulate the space the embeddings are mapped to in order to get a better similiarity calculation for the words. The Query and Key are trained with the model to maximize for similarity, but what works best for similarity is not good for calculating the next best word. That is where the Value matrix comes in as it then takes the best of the similarity calculations and maps it on the Value matrix to then generate the best next word. The Value matrix like the Query and Key matrix are trained for these specific purposes.
+1. What is the mathematical transformation that the Key and Query matrix? are doing and why is it useful?
+**Expected Answer**: Linear transformation. It is important because it transform the vector space that represents the embeddings to better find similarity. By using the Key and Query matrix / vector to map the words it will maximize the similarity calculation which provides context and better relationships that improves the models calculation of the next word. 
 1. Describe the steps involved in the calculation of self-attention.
 **Expected Answer**: The calculation of self-attention involves several steps:
 
@@ -46,7 +100,25 @@
 **Expected Answer**: In the Transformer, self-attention calculations are efficiently executed using matrix operations. Query, Key, and Value matrices are formed by multiplying the input embedding matrix with trained weight matrices. These matrix operations enable the model to process all words simultaneously, leading to faster computation​​.
 
 1. What is multi-headed attention in the Transformer model, and what are its advantages?
-**Expected Answer**: Multi-headed attention is an extension of the self-attention mechanism where the model uses multiple sets of Query/Key/Value weight matrices. This approach allows the model to focus on different positions and representation subspaces, enhancing its ability to capture various aspects of the input sequence. Each head contributes to a more comprehensive representation of the input​​.
+**Expected Answer**: Multi-headed attention is an extension of the self-attention mechanism where the model uses multiple sets of Query/Key/Value weight matrices. This approach allows the model to focus on different positions and representation subspaces, enhancing its ability to capture various aspects of the input sequence. Each head contributes to a more comprehensive representation of the input​​. The idea behind multi-head attention is to allow the attention function to extract information from different representation subspaces, which would otherwise be impossible with a single attention head
+
+1. Describe the process in which mult-headed attention works?
+**Expected Answer**: 
+
+1. What is the multi-head attention function representation?
+**Expected Answer**: $$multihead(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = concat(head_1, \dots, head_h) \mathbf{W}^O$$
+
+1. What is the single attention function characterized by its own learned projection matrices?
+**Expected Answer**: $$\text{head}_i = \text{attention}(\mathbf{QW}^Q_i, \mathbf{KW}^K_i, \mathbf{VW}^V_i)$$
+
+1. What is the step-by-step procedure for computing multi-head attention?
+**Expected Answer**:
+
+   1. Compute the linearly projected versions of the queries, keys, and values through multiplication with the respective weight matrices for each head: $\mathbf{W}^Q_i , \mathbf{W}^K_i , \mathbf{W}^V_i $
+   2. Apply the single attention function for each head by (1) multiplying the queries and keys matrices, (2) applying the scaling and softmax operations, and (3) weighting the values matrix to generate an output for each head.
+   3. Concatenate the outputs of the heads: $\text{head}_i , i = 1, \dots, h$
+   4. Apply a linear projection to the concatenated output through multiplication with the weight matrix, $W^O$ to generate the final result
+
 
 1. How does positional encoding work in the Transformer model?
 **Expected Answer**: Positional encoding is used in the Transformer to account for the order of words in the input sequence. Each input embedding is added with a positional encoding vector, which follows a specific pattern learned by the model. This process provides information about the position of each word and the relative distances between words in the sequence​​.
@@ -60,8 +132,8 @@
 1. Describe the final linear and softmax layers in the Transformer's decoder.
 **Expected Answer**: The final linear layer in the Transformer's decoder is a fully connected neural network that projects the decoder output into a logits vector, representing the scores for each word in the model's vocabulary. The softmax layer then converts these scores into probabilities. The word with the highest probability is selected as the output for that position in the sequence​​.
 
-1. How is the Transformer model trained, and what is the role of the loss function during training?
-**Expected Answer**: The Transformer model is trained using a labeled training dataset, where its output is compared with the correct output. The loss function measures the difference between the model's output and the actual output, guiding the model to adjust its parameters for more accurate predictions. Different decoding strategies like greedy decoding and beam search can be used during training to select the most likely words for the output sequence
+1. What is the role of the loss function during training?
+**Expected Answer**: The loss function measures the difference between the model's output and the actual output, guiding the model to adjust its parameters for more accurate predictions. Different decoding strategies like greedy decoding and beam search can be used during training to select the most likely words for the output sequence
 ### Intermediate Concepts
 3. What is the role of self-attention in a Transformer model?
 **Expected Answer**: Self-attention allows the model to focus on different parts of the input sequence when processing a specific part of that sequence. It computes attention scores to decide how much focus to put on other parts of the input when encoding or decoding a particular part.
@@ -105,6 +177,10 @@
 **Expected Answer**: Challenges include managing the computational resources due to the large size of the models, handling long-range dependencies in sequences, and ensuring efficient parallelization of the training process. Model parallelism, data parallelism, and efficient attention mechanisms like sparse attention are often employed to mitigate these challenges.
 
 ### Word Embeddings
+**Question 0**
+Q: What is a word embedding?
+A: Word embeddings are representations of words in a way the computer can understand (numbers). A word embedding takes the form of a vector which is an array of numbers (coordinates) the represent the word. Example: Apple = [0.41, 0.14, -0.05, 0.7]. A word embedding is an assignment of a list of numbers (vector) to every word, in a way that semantic properties of the word translate into mathematical properties of the numbers
+
 **Question 1**
 Q: Explain the difference between static and dynamic word embeddings.
 A: Static word embeddings provide a fixed vector representation for each word, regardless of context. They are learned during a training phase and remain constant thereafter. Dynamic embeddings, on the other hand, adjust the vector representation of words based on the surrounding context, changing continuously as the model processes text.
