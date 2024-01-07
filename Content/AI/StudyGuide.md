@@ -123,9 +123,53 @@
 1. How does positional encoding work in the Transformer model?
 **Expected Answer**: Positional encoding is used in the Transformer to account for the order of words in the input sequence. Each input embedding is added with a positional encoding vector, which follows a specific pattern learned by the model. This process provides information about the position of each word and the relative distances between words in the sequence​​.
 
+1. What could the equations look like for the whole encoder?
+**Expected Answer**: $$\text{Z}(x) = \text{LayerNorm}(x + \text{Attention}(x))$$$$\text{FFN}(x) = \text{ReLU}(xW_1 + b_1)W_2 + b_2$$$$\text{Encoder}(x) = \text{LayerNorm}(Z(x) + \text{FFN}(Z(x) + x))$$
+
+1. Explain this formula and what it is for: $\text{Z}(x) = \text{LayerNorm}(x + \text{Attention}(x))$
+**Expected Answer**: This equation is the multi-headed attention sub-layer of the encoder that gets normalized before it is passed to the FFN sub-layer
+
+1. Explain this formula and what it is for: $\text{FFN}(x) = \text{ReLU}(xW_1 + b_1)W_2 + b_2$
+**Expected Answer**: This equation is the FFN sub-layer of the encoder that allows the model to learn non-linear functions. 
+
+1. Explain this formula and what it is for: $\text{Encoder}(x) = \text{LayerNorm}(Z(x) + \text{FFN}(Z(x) + x))$
+**Expected Answer**: This equation is the entire representation of the Encoder. 
+
 1. What role do residual connections and layer normalization play in the Transformer model?
 **Expected Answer**: In the Transformer model, each sub-layer (both self-attention and feed-forward neural network) in the encoders and decoders includes a residual connection around it, followed by layer normalization. Residual connections help in mitigating the vanishing gradient problem, and layer normalization ensures that the data in each layer has a consistent distribution, which aids in stable and efficient training​​.
 
+1. What are residual connections?
+**Expected Answer**: Residual connections are simply adding the input of the layer to it output. For example, we add the initial embedding to the output of the attention. Residual connections mitigate the vanishing gradient problem. The intuition is that if the gradient is too small, we can just add the input to the output and the gradient will be larger. The math is very simple: $$\text{Residual}(x) = x + \text{Layer}(x)$$
+
+1. What is the Vanishing Gradient Problem?
+**Expected Answer**: In deep networks, especially those with many layers, gradients can become increasingly small as they are propagated back through the network during training. This happens due to the multiplication of gradients through many layers. As a result, the weights in the earlier layers of the network get very tiny updates, making the training process extremely slow or causing it to stall completely. Essentially, the network stops learning because the signal (gradient) that it needs to learn is too weak by the time it reaches the deeper layers.
+
+1. What is the Exploding Gradient Problem:?
+**Expected Answer**: In deep networks, especially those with many layers, gradients can also grow exponentially large in deep networks, especially if the weights are large or the activation functions allow for large derivatives. This can lead to very large updates to the network's weights, causing the model to become unstable and the training process to diverge.
+
+
+1. What is layer normalization?
+**Expected Answer**: Layer normalization is a technique to normalize the inputs of a layer. It normalizes across the embedding dimension. The intuition is that we want to normalize the inputs of a layer so that they have a mean of 0 and a standard deviation of 1. This helps with the gradient flow.
+
+1. What is the formula of layer normalization and explain it?
+**Expected Answer**: $$\text{LayerNorm}(x) = \frac{x - \mu}{\sqrt{\sigma^2 + \epsilon}} \times \gamma + \beta$$
+
+   * $\mu$ is the mean of the embedding
+   * $\sigma$ is the standard deviation of the embedding
+   * $\epsilon$ is a small number to avoid division by zero. In case the standard deviation is 0
+   * $\gamma$ and $\beta$ are learned parameters that control scaling and shifting steps
+
+   Layer normalization normalizes across the embedding dimension - that means that each embedding will not be affected by other samples in the batch. The intuition is that we want to normalize the inputs of a layer so that they have a mean of 0 and a standard deviation of 1
+
+1. In layer normalization what is the purpose of $\gamma$ and $\beta$?
+**Expected Answer**: The addition of γ and β to layer normalization allows the neural network to retain flexibility and expressiveness, ensuring that the normalization process does not overly constrain the data representation.
+   We don’t want to lose the representational power of the layer. If we just normalize the inputs, we might lose some information. While this can help stabilize and speed up training, there's a potential issue: it could reduce the network's ability to represent complex functions. By adding the learnable parameters, we can learn to scale and shift the normalized values. In other words, the process of normalization could strip away certain characteristics of the data that the network could have learned from. 
+
+   To mitigate this, layer normalization introduces two learnable parameters, gamma (γ) and beta (β), for each feature. These parameters provide the network with the ability to undo or alter the normalization effect if that's beneficial for learning the task at hand.
+
+   1. Gamma (γ): This parameter scales the normalized data. If the network learns that the normalization scaled down some useful feature too much, gamma can scale it back up.
+
+   2. Beta (β): This parameter shifts the normalized data. If the network finds that the normalization shifted a feature in a way that's not beneficial, beta can shift it back.
 1. What is the formula for the feed-forward function (FFN) and describe the three different components of it and why they are important?
 **Expected Answer**: Feed-Forward function is a simple network with two linear transformations and a ReLU activation in between. $$\text{FFN}(x) = \text{ReLU}(xW_1 + b_1)W_2 + b_2$$ 
    
