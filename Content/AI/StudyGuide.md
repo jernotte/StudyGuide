@@ -177,36 +177,29 @@ Q: Discuss the computational challenges in managing dynamic embeddings in large-
 **Expected Answer**: Challenges include managing the computational resources due to the large size of the models, handling long-range dependencies in sequences, and ensuring efficient parallelization of the training process. Model parallelism, data parallelism, and efficient attention mechanisms like sparse attention are often employed to mitigate these challenges.
 
 ### Word Embeddings
-**Question 0**
-Q: What is a word embedding?
-A: Word embeddings are representations of words in a way the computer can understand (numbers). A word embedding takes the form of a vector which is an array of numbers (coordinates) the represent the word. Example: Apple = [0.41, 0.14, -0.05, 0.7]. A word embedding is an assignment of a list of numbers (vector) to every word, in a way that semantic properties of the word translate into mathematical properties of the numbers
 
-**Question 1**
-Q: Explain the difference between static and dynamic word embeddings.
-A: Static word embeddings provide a fixed vector representation for each word, regardless of context. They are learned during a training phase and remain constant thereafter. Dynamic embeddings, on the other hand, adjust the vector representation of words based on the surrounding context, changing continuously as the model processes text.
+1. What is a word embedding?
+**Expected Answer**:  Word embeddings are representations of words in a way the computer can understand (numbers). A word embedding takes the form of a vector which is an array of numbers (coordinates) the represent the word. Example: Apple = [0.41, 0.14, -0.05, 0.7]. A word embedding is an assignment of a list of numbers (vector) to every word, in a way that semantic properties of the word translate into mathematical properties of the numbers
+
+1. Explain the difference between static and dynamic word embeddings.
+**Expected Answer**:  Static word embeddings provide a fixed vector representation for each word, regardless of context. They are learned during a training phase and remain constant thereafter. Dynamic embeddings, on the other hand, adjust the vector representation of words based on the surrounding context, changing continuously as the model processes text.
 ![dynamic embeddings changing weights through the layers](Resources/layer1-layer2-word-embedding-vectors.png)
 
 
-**Question 2**
-Q: How do Transformer models utilize layers to process word embeddings?
-A: Transformer models process word embeddings through multiple layers, each adding contextual information. These layers use self-attention mechanisms to weigh the importance of different words in a sentence, adjusting embeddings to reflect this contextual understanding as the input progresses through the network.
+1. How do Transformer models utilize layers to process word embeddings?
+**Expected Answer**: Transformer models process word embeddings through multiple layers, each adding contextual information. These layers use self-attention mechanisms to weigh the importance of different words in a sentence, adjusting embeddings to reflect this contextual understanding as the input progresses through the network.
 
-**Question 3**
-Q: Describe the process and significance of the self-attention mechanism in Transformer models.
-A: The self-attention mechanism in Transformers calculates how much each word in a sentence should focus on every other word, generating attention scores. These scores are used to create a weighted sum of value vectors, allowing each word's embedding to be dynamically adjusted according to its contextual relevance.
+1. Describe the process and significance of the self-attention mechanism in Transformer models.
+**Expected Answer**: The self-attention mechanism in Transformers calculates how much each word in a sentence should focus on every other word, generating attention scores. These scores are used to create a weighted sum of value vectors, allowing each word's embedding to be dynamically adjusted according to its contextual relevance.
 
-**Question 4**
-Q: In the context of next-word prediction, how does a model like GPT-4 generate a new word?
-A: For next-word prediction, models like GPT-4 sequentially process each word in a sentence, updating word embeddings based on cumulative context. When it reaches the end of the known text, it uses the contextual information encoded in the embeddings to generate a probability distribution over its vocabulary, predicting the most likely next word.
+1. In the context of next-word prediction, how does a model like GPT-4 generate a new word?
+**Expected Answer**: For next-word prediction, models like GPT-4 sequentially process each word in a sentence, updating word embeddings based on cumulative context. When it reaches the end of the known text, it uses the contextual information encoded in the embeddings to generate a probability distribution over its vocabulary, predicting the most likely next word.
 
-**Question 5**
-Q: What happens to the word embeddings when a new word is generated and added to the sentence in a language model?
-A: When a new word is added to a sentence, the model typically reprocesses the extended sentence starting from the beginning. This re-evaluation incorporates the new word into the context, updating the embeddings accordingly for subsequent word predictions.
+1. What happens to the word embeddings when a new word is generated and added to the sentence in a language model?
+**Expected Answer**: When a new word is added to a sentence, the model typically reprocesses the extended sentence starting from the beginning. This re-evaluation incorporates the new word into the context, updating the embeddings accordingly for subsequent word predictions.
 
-**Question 6**
-Q: Explain the role of dimensionality in word embeddings and why high-dimensional spaces are used.
-A: High-dimensional spaces in word embeddings allow for capturing more nuanced relationships between words. Each dimension can represent different aspects of meaning or linguistic properties, reducing overlap and allowing similar but distinct words to be adequately separated, which is crucial for capturing the complexities of language.
+1. Explain the role of dimensionality in word embeddings and why high-dimensional spaces are used.
+**Expected Answer**: High-dimensional spaces in word embeddings allow for capturing more nuanced relationships between words. Each dimension can represent different aspects of meaning or linguistic properties, reducing overlap and allowing similar but distinct words to be adequately separated, which is crucial for capturing the complexities of language.
 
-**Question 7**
-Q: Discuss the computational challenges in managing dynamic embeddings in large-scale models like GPT-4.
-A: Managing dynamic embeddings in large-scale models like GPT-4 involves significant computational complexity. The continuous adjustment of embeddings in high-dimensional spaces, especially when processing large volumes of text, requires powerful hardware and optimized algorithms to handle the intense computational load efficiently.
+1. Discuss the computational challenges in managing dynamic embeddings in large-scale models like GPT-4.
+**Expected Answer**: Managing dynamic embeddings in large-scale models like GPT-4 involves significant computational complexity. The continuous adjustment of embeddings in high-dimensional spaces, especially when processing large volumes of text, requires powerful hardware and optimized algorithms to handle the intense computational load efficiently.
