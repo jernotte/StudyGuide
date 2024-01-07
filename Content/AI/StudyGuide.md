@@ -46,15 +46,15 @@
 6. How does the GPT (Generative Pre-trained Transformer) architecture differ from the standard Transformer model?
 7. Can you describe the process of training a Transformer model like GPT?
 8. What are some challenges in implementing Transformers at scale?
-Q: Explain the difference between static and dynamic word embeddings.
-Q: How do Transformer models utilize layers to process word embeddings?
-Q: Describe the process and significance of the self-attention mechanism in Transformer models.
-Q: In the context of next-word prediction, how does a model like GPT-4 generate a new word?
-Q: What happens to the word embeddings when a new word is generated and added to the sentence in a language model?
-Q: Explain the role of dimensionality in word embeddings and why high-dimensional spaces are used.
-Q: Discuss the computational challenges in managing dynamic embeddings in large-scale models like GPT-4.
+1. Explain the difference between static and dynamic word embeddings.
+1. How do Transformer models utilize layers to process word embeddings?
+1. Describe the process and significance of the self-attention mechanism in Transformer models.
+1. In the context of next-word prediction, how does a model like GPT-4 generate a new word?
+1. What happens to the word embeddings when a new word is generated and added to the sentence in a language model?
+1. Explain the role of dimensionality in word embeddings and why high-dimensional spaces are used.
+1. Discuss the computational challenges in managing dynamic embeddings in large-scale models like GPT-4.
 
-### Basic Understanding
+### AI/ML
 
 1. What are Transformers in the context of machine learning?
 **Expected Answer** : Transformers are a type of deep learning model that primarily uses self-attention mechanisms to process sequential data. Unlike previous models like RNNs and LSTMs, Transformers handle sequences in parallel, which allows for more efficient training and better handling of long-range dependencies.
@@ -134,7 +134,8 @@ Q: Discuss the computational challenges in managing dynamic embeddings in large-
 
 1. What is the role of the loss function during training?
 **Expected Answer**: The loss function measures the difference between the model's output and the actual output, guiding the model to adjust its parameters for more accurate predictions. Different decoding strategies like greedy decoding and beam search can be used during training to select the most likely words for the output sequence
-### Intermediate Concepts
+
+
 3. What is the role of self-attention in a Transformer model?
 **Expected Answer**: Self-attention allows the model to focus on different parts of the input sequence when processing a specific part of that sequence. It computes attention scores to decide how much focus to put on other parts of the input when encoding or decoding a particular part.
 4. How does the Transformer model handle positional information?
@@ -144,7 +145,7 @@ Q: Discuss the computational challenges in managing dynamic embeddings in large-
 **Expected Answer**: Position encodings are added to the input embeddings at the bottom of the Transformer model. These encodings can take different forms, but they all serve the same purpose: to give the model a way to infer the order of the sequence elements. Transformers process all elements simultaneously (in parallel), so they don't have a way of recognizing the order of elements unless this information is explicitly provided. The reason this is important is because if we had the sentence `write a story.` and then another sentence `a . story write` we can see that these are two distinct sentence with the second one being nonsense. However, without positional encoding they would end up as the same vector representation and lack the context of position. This is accomplished by adding some sequence to the word embeddings in order to move them around to perturb the order.
 
 1. What is softmax?
-**Expected Answer**: Softmax is a mathematical function commonly used in machine learning. It converts a vector of raw scores (often called logits) into a probability distribution. In the case of transformers the function is: $$\frac{e^{x}}{d_k}$$
+**Expected Answer**: Softmax is a function that takes a vector of values and returns a vector of values between 0 and 1, where the sum of the values is 1. It’s a nice way of obtaining probabilities. . In the case of transformers the function is: $$\frac{e^{x}}{d_k}$$
 
 1. What parts of a transformer uses softmax and why?
 **Expected Answer**: 
@@ -155,16 +156,24 @@ Q: Discuss the computational challenges in managing dynamic embeddings in large-
 1. What is the significance of using multiple encoders and decoders in the Transformer model?
 **Expected Answer**: The use of multiple encoders and decoders in the Transformer model allows for a deeper level of processing and understanding of the input and output sequences. Each encoder and decoder layer adds a level of abstraction, enabling the model to capture more complex patterns and relationships within the data. This stacking of layers contributes to the model's ability to handle complex translation tasks and understand the nuances of language.
 
+1. If we have an 8 heads and 2 encoders in our transformer, explain the input and output of each encoder layer
+**Expected Answer**: The word embeddings that are then added to the positional matrix to represent our input is what is passed into the first encoder. The output of the first encoder will be the the resulting concatenation of the attention calculation with the feedforward layer. That output will be the input of second encoder and will follow the same pattern.
+
+1. Is the word embedding matrix used after the first encoder layer?
+**Expected Answer**: No
+
 1. How does the Transformer model handle long-range dependencies in sequences?
 **Expected Answer**: The Transformer model effectively handles long-range dependencies through its self-attention mechanism. Unlike RNNs or LSTMs, which process sequences linearly and may struggle with long-range dependencies, the Transformer's self-attention allows each word in the sequence to directly attend to every other word. This direct attention mechanism enables the model to capture relationships and dependencies between words, regardless of their position in the sequence.
 
 1. Explain the importance of layer normalization in the Transformer architecture.
 **Expected Answer**: Layer normalization is crucial in the Transformer architecture as it stabilizes the learning process. By normalizing the inputs across the features, layer normalization ensures that the data within each layer has a consistent mean and variance. This standardization reduces training time and improves the overall performance of the model by mitigating issues related to varying scales of features and the internal covariate shift problem.
 
+1. Why do we use ReLU as the activation function, where is it used in the transformer and how does it improve the model?
+**Expected Answer**: ![ReLU](Resources/ReLU-nonlinear.png)
+
 1. Describe the training process of the Transformer model in terms of data requirements and computational efficiency.
 **Expected Answer**: The training of the Transformer model requires a substantial amount of labeled data for effective learning. This data is used in a supervised learning setting, where the model's predictions are compared against actual outputs to compute the loss. The Transformer's parallelizable architecture makes it computationally efficient, especially when trained on hardware like GPUs or TPUs. This efficiency is largely due to the model's ability to process multiple parts of the sequence simultaneously, unlike sequential models like RNNs.
 
-### Advanced Technical Depth
 5. Explain the multi-head attention mechanism in Transformers.
 **Expected Answer**: Multi-head attention in Transformers involves splitting the attention mechanism into multiple heads. Each head focuses on different parts of the input, allowing the model to capture various aspects of the information. This parallel processing leads to a more comprehensive understanding of the input.
 6. How does the GPT (Generative Pre-trained Transformer) architecture differ from the standard Transformer model?
@@ -184,7 +193,6 @@ Q: Discuss the computational challenges in managing dynamic embeddings in large-
 1. Explain the difference between static and dynamic word embeddings.
 **Expected Answer**:  Static word embeddings provide a fixed vector representation for each word, regardless of context. They are learned during a training phase and remain constant thereafter. Dynamic embeddings, on the other hand, adjust the vector representation of words based on the surrounding context, changing continuously as the model processes text.
 ![dynamic embeddings changing weights through the layers](Resources/layer1-layer2-word-embedding-vectors.png)
-
 
 1. How do Transformer models utilize layers to process word embeddings?
 **Expected Answer**: Transformer models process word embeddings through multiple layers, each adding contextual information. These layers use self-attention mechanisms to weigh the importance of different words in a sentence, adjusting embeddings to reflect this contextual understanding as the input progresses through the network.
