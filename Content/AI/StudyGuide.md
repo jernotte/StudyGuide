@@ -126,6 +126,14 @@
 1. What role do residual connections and layer normalization play in the Transformer model?
 **Expected Answer**: In the Transformer model, each sub-layer (both self-attention and feed-forward neural network) in the encoders and decoders includes a residual connection around it, followed by layer normalization. Residual connections help in mitigating the vanishing gradient problem, and layer normalization ensures that the data in each layer has a consistent distribution, which aids in stable and efficient training​​.
 
+1. What is the formula for the feed-forward function (FFN) and describe the three different components of it and why they are important?
+**Expected Answer**: Feed-Forward function is a simple network with two linear transformations and a ReLU activation in between. $$\text{FFN}(x) = \text{ReLU}(xW_1 + b_1)W_2 + b_2$$ 
+   
+   1. **First linear layer**: this usually expands the dimensionality of the input. For example, if the input dimension is 512, the output dimension might be 2048. This is the $\text(xW_1 + b_1)$ oart.
+   1. **ReLU activation**: This is a non-linear activation function. It’s a simple function that returns 0 if the input is negative, and the input if it’s positive. This allows the model to learn non-linear functions. The math is as follows: $\text{ReLU}(x) = \max(0, x)$
+   1. **Second linear layer**: This is the opposite of the first linear layer. It reduces the dimensionality back to the original dimension.
+
+
 1. Explain the role of the decoder in the Transformer model.
 **Expected Answer**: The decoder in the Transformer model utilizes the outputs from the encoder stack to generate the output sequence. It includes self-attention layers, which attend to previous positions in the sequence, and encoder-decoder attention layers, which focus on relevant parts of the input sequence. The decoder processes each word in the output sequence, leveraging the information and context provided by the encoder​​.
 
