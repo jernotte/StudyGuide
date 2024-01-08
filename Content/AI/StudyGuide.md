@@ -139,7 +139,7 @@
 **Expected Answer**: In the Transformer model, each sub-layer (both self-attention and feed-forward neural network) in the encoders and decoders includes a residual connection around it, followed by layer normalization. Residual connections help in mitigating the vanishing gradient problem, and layer normalization ensures that the data in each layer has a consistent distribution, which aids in stable and efficient training​​.
 
 1. What are residual connections?
-**Expected Answer**: Residual connections are simply adding the input of the layer to it output. For example, we add the initial embedding to the output of the attention. Residual connections mitigate the vanishing gradient problem. The intuition is that if the gradient is too small, we can just add the input to the output and the gradient will be larger. The math is very simple: $$\text{Residual}(x) = x + \text{Layer}(x)$$
+**Expected Answer**: Residual connections are simply adding the input of the layer to its output. For example, we add the initial embedding to the output of the attention. Residual connections mitigate the vanishing gradient problem. The intuition is that if the gradient is too small, we can just add the input to the output and the gradient will be larger. The math is very simple: $$\text{Residual}(x) = x + \text{Layer}(x)$$
 
 1. What is the Vanishing Gradient Problem?
 **Expected Answer**: In deep networks, especially those with many layers, gradients can become increasingly small as they are propagated back through the network during training. This happens due to the multiplication of gradients through many layers. As a result, the weights in the earlier layers of the network get very tiny updates, making the training process extremely slow or causing it to stall completely. Essentially, the network stops learning because the signal (gradient) that it needs to learn is too weak by the time it reaches the deeper layers.
@@ -173,9 +173,13 @@
 1. What is the formula for the feed-forward function (FFN) and describe the three different components of it and why they are important?
 **Expected Answer**: Feed-Forward function is a simple network with two linear transformations and a ReLU activation in between. $$\text{FFN}(x) = \text{ReLU}(xW_1 + b_1)W_2 + b_2$$ 
    
-   1. **First linear layer**: this usually expands the dimensionality of the input. For example, if the input dimension is 512, the output dimension might be 2048. This is the $\text(xW_1 + b_1)$ oart.
+   1. **First linear layer**: this usually expands the dimensionality of the input. For example, if the input dimension is 512, the output dimension might be 2048. This is the $\text(xW_1 + b_1)$ part.
    1. **ReLU activation**: This is a non-linear activation function. It’s a simple function that returns 0 if the input is negative, and the input if it’s positive. This allows the model to learn non-linear functions. The math is as follows: $\text{ReLU}(x) = \max(0, x)$
    1. **Second linear layer**: This is the opposite of the first linear layer. It reduces the dimensionality back to the original dimension.
+
+
+1. Why do the feed-forward layers in a Transformer's encoder and decoder first expand and then reduce the dimensionality of data (e.g., from 512 to 2048, then back to 512)?
+**Expected Answer**: The expansion and reduction of dimensions in the feed-forward layers of a Transformer model provides a mechanism for the network to temporarily increase its representational capacity. This allows the network a larger, higher-dimensional space in which to perform computations to explore a broader range of functions and capture more complex relationships within the data, which are then distilled back into a form that maintains compatibility with the model's overall architecture
 
 
 1. Explain the role of the decoder in the Transformer model.
@@ -226,10 +230,30 @@
 1. Describe the training process of the Transformer model in terms of data requirements and computational efficiency.
 **Expected Answer**: The training of the Transformer model requires a substantial amount of labeled data for effective learning. This data is used in a supervised learning setting, where the model's predictions are compared against actual outputs to compute the loss. The Transformer's parallelizable architecture makes it computationally efficient, especially when trained on hardware like GPUs or TPUs. This efficiency is largely due to the model's ability to process multiple parts of the sequence simultaneously, unlike sequential models like RNNs.
 
+1. In the self-attention mechanism, we calculate the queries, keys, and values from the input embedding. In the encoder-decoder attention where do we calculate the queries, keys, and values from?
+**Expected Answer**: The queries are calculated from the previous decoder layer and the keys and values from the encoder output.
+
+1. What is the purpose of encoder-decoder attention in the decoder versus just using self-attention?
+**Expected Answer**: The reason is that we want the decoder to focus on the relevant parts of the input text. The encoder-decoder attention allows each position in the decoder to attend over all positions in the input sequence. This is very helpful for tasks such as translation, where the decoder needs to focus on the relevant parts of the input sequence. The decoder will learn to focus on the relevant parts of the input sequence by learning to generate the correct output tokens.
+
+1. What is the Linear Layer in the Decoder's Output?
+**Expected Answer**: The purpose of this output linear layer is to transform the decoder's final hidden states to a much larger output space – typically the size of the model's vocabulary. This transformation is necessary for tasks like language generation, where each position in the output sequence is transformed into a vector of logits, representing the raw predictions of each token in the vocabulary.
+
+1. Why is a bias term crucial in the output linear layer after performing the dot product between the decoder's output and the weight matrix?
+**Expected Answer**: The addition of a bias term in the linear layer of a decoder's output is essential for adding an offset to the output and allowing the layer to shift its output. This offset not only increases the flexibility and expressiveness of the model but also ensures that zero input does not automatically lead to a zero output. Without the bias, the output would be strictly dependent on the input, limiting the layer's ability to represent a wide range of functions and potentially impeding learning, especially in cases where the input may have values close to or at zero.
+
+
+1. What would happen if our attention dimension was too small? What about if it was too large?
+**Expected Answer**: The attention dimension in a Transformer model determines how much information the model can process and learn from in each attention operation. If this dimension is too small, the model may not have enough capacity to effectively capture and learn complex relationships in the data, leading to underfitting. On the other hand, if the attention dimension is too large, the model might become too complex, leading to overfitting on the training data and unnecessary increases in computational requirements and training time
+
 5. Explain the multi-head attention mechanism in Transformers.
 **Expected Answer**: Multi-head attention in Transformers involves splitting the attention mechanism into multiple heads. Each head focuses on different parts of the input, allowing the model to capture various aspects of the information. This parallel processing leads to a more comprehensive understanding of the input.
+
 6. How does the GPT (Generative Pre-trained Transformer) architecture differ from the standard Transformer model?
 **Expected Answer**: GPT is a variant of the Transformer model that uses only the decoder part of the original architecture. It is pre-trained on a large corpus of text and fine-tuned for specific tasks. GPT models are designed for generative tasks and have a unidirectional nature, meaning each token can only attend to previous tokens.
+
+1. Explain each component in the image ![Transformer Architecture](Resources/transformer.png)
+**Expected Answer**: Reference the other questions for each component.
 
 ### Implementation and Usage
 7. Can you describe the process of training a Transformer model like GPT?
@@ -263,3 +287,6 @@
 
 1. Discuss the computational challenges in managing dynamic embeddings in large-scale models like GPT-4.
 **Expected Answer**: Managing dynamic embeddings in large-scale models like GPT-4 involves significant computational complexity. The continuous adjustment of embeddings in high-dimensional spaces, especially when processing large volumes of text, requires powerful hardware and optimized algorithms to handle the intense computational load efficiently.
+
+1. What is SOS and EOS in the transformer model?
+**Expected Answer**: These tokens are part of the vocabulary of the model and are learned during the training process. In the Transformer model, and others like it, the use of SOS(Start Of Sequence) and EOS(End Of Sequence) tokens is standard practice to manage sequence generation tasks effectively. The SOS token typically serves as an initial input to the decoder, and the EOS token serves as a termination signal for the decoder to stop generating further tokens in the output sequence.
