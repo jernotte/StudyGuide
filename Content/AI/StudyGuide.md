@@ -239,6 +239,10 @@
 1. What is the Linear Layer in the Decoder's Output?
 **Expected Answer**: The purpose of this output linear layer is to transform the decoder's final hidden states to a much larger output space – typically the size of the model's vocabulary. This transformation is necessary for tasks like language generation, where each position in the output sequence is transformed into a vector of logits, representing the raw predictions of each token in the vocabulary.
 
+1. Why is the decoder slower than the encoder?
+**Expected Answer**: The decoder processes one word at a time in a sequential manner, while the encoder can process the entire input sequence in parallel.
+
+
 1. Why is a bias term crucial in the output linear layer after performing the dot product between the decoder's output and the weight matrix?
 **Expected Answer**: The addition of a bias term in the linear layer of a decoder's output is essential for adding an offset to the output and allowing the layer to shift its output. This offset not only increases the flexibility and expressiveness of the model but also ensures that zero input does not automatically lead to a zero output. Without the bias, the output would be strictly dependent on the input, limiting the layer's ability to represent a wide range of functions and potentially impeding learning, especially in cases where the input may have values close to or at zero.
 
