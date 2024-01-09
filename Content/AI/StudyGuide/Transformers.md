@@ -56,7 +56,7 @@
 
 ### AI/ML
 
-1. What are Transformers in the context of machine learning?
+1. What are Transformers in the context of machine learning? 
 **Expected Answer** : Transformers are a type of deep learning model that primarily uses self-attention mechanisms to process sequential data. Unlike previous models like RNNs and LSTMs, Transformers handle sequences in parallel, which allows for more efficient training and better handling of long-range dependencies.
 1. What are the sub-layers within each encoder and decoder of the Transformer, and how do they function?
 **Expected Answer**: Each encoder in the Transformer model consists of two sub-layers: a self-attention layer and a feed-forward neural network. The self-attention layer allows the encoder to consider other words in the input sentence for better word encoding. The feed-forward network processes the output of the self-attention layer. Decoders also have these layers, with an additional attention layer to focus on relevant parts of the input sentence​​.
@@ -69,7 +69,7 @@
 3. Explain the basic architecture of a Transformer model.
 **Expected Answer**: The basic architecture of a Transformer includes an encoder and a decoder. The encoder processes the input data and the decoder generates the output. Each consists of layers that include self-attention mechanisms and feed-forward neural networks. The encoder captures the context of the input sequence, while the decoder uses this context to produce the output sequence.
 4. What is self-attention in Transformers, and how does it differ from traditional attention mechanisms?
-**Expected Answer**: [Self-attention](Models/self-attention.md), a key component of Transformers, allows each position in the sequence to attend to all positions in the previous layer of the model, thus enabling parallel processing. It differs from traditional attention mechanisms by focusing on different parts of the same input sequence to compute the representation.
+**Expected Answer**: Self-attention, a key component of Transformers, allows each position in the sequence to attend to all positions in the previous layer of the model, thus enabling parallel processing. It differs from traditional attention mechanisms by focusing on different parts of the same input sequence to compute the representation.
 1. What are the three ways to calculate similarity?
 **Expected Answer**: Dot product, Cosine similarity, Scaled dot product.
 6. Can you explain the concept of multi-head attention in Transformers and its benefits?
@@ -225,7 +225,7 @@
 **Expected Answer**: Layer normalization is crucial in the Transformer architecture as it stabilizes the learning process. By normalizing the inputs across the features, layer normalization ensures that the data within each layer has a consistent mean and variance. This standardization reduces training time and improves the overall performance of the model by mitigating issues related to varying scales of features and the internal covariate shift problem.
 
 1. Why do we use ReLU as the activation function, where is it used in the transformer and how does it improve the model?
-**Expected Answer**: ![ReLU](Resources/ReLU-nonlinear.png)
+**Expected Answer**: ![ReLU](/Content/AI/Resources/ReLU-nonlinear.png)
 
 1. Describe the training process of the Transformer model in terms of data requirements and computational efficiency.
 **Expected Answer**: The training of the Transformer model requires a substantial amount of labeled data for effective learning. This data is used in a supervised learning setting, where the model's predictions are compared against actual outputs to compute the loss. The Transformer's parallelizable architecture makes it computationally efficient, especially when trained on hardware like GPUs or TPUs. This efficiency is largely due to the model's ability to process multiple parts of the sequence simultaneously, unlike sequential models like RNNs.
@@ -256,7 +256,7 @@
 6. How does the GPT (Generative Pre-trained Transformer) architecture differ from the standard Transformer model?
 **Expected Answer**: GPT is a variant of the Transformer model that uses only the decoder part of the original architecture. It is pre-trained on a large corpus of text and fine-tuned for specific tasks. GPT models are designed for generative tasks and have a unidirectional nature, meaning each token can only attend to previous tokens.
 
-1. Explain each component in the image ![Transformer Architecture](Resources/transformer.png)
+1. Explain each component in the image ![Transformer Architecture](/Content/AI/Resources/transformer.png)
 **Expected Answer**: Reference the other questions for each component.
 
 ### Implementation and Usage
@@ -272,7 +272,7 @@
 
 1. Explain the difference between static and dynamic word embeddings.
 **Expected Answer**:  Static word embeddings provide a fixed vector representation for each word, regardless of context. They are learned during a training phase and remain constant thereafter. Dynamic embeddings, on the other hand, adjust the vector representation of words based on the surrounding context, changing continuously as the model processes text.
-![dynamic embeddings changing weights through the layers](Resources/layer1-layer2-word-embedding-vectors.png)
+![dynamic embeddings changing weights through the layers](/Content/AI/Resources/layer1-layer2-word-embedding-vectors.png)
 
 1. How do Transformer models utilize layers to process word embeddings?
 **Expected Answer**: Transformer models process word embeddings through multiple layers, each adding contextual information. These layers use self-attention mechanisms to weigh the importance of different words in a sentence, adjusting embeddings to reflect this contextual understanding as the input progresses through the network.
