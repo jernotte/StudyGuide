@@ -124,7 +124,7 @@
 **Expected Answer**: Positional encoding is used in the Transformer to account for the order of words in the input sequence. Each input embedding is added with a positional encoding vector, which follows a specific pattern learned by the model. This process provides information about the position of each word and the relative distances between words in the sequence​​.
 
 1. What could the equations look like for the whole encoder?
-**Expected Answer**: $$\text{Z}(x) = \text{LayerNorm}(x + \text{Attention}(x))$$$$\text{FFN}(x) = \text{ReLU}(xW_1 + b_1)W_2 + b_2$$$$\text{Encoder}(x) = \text{LayerNorm}(Z(x) + \text{FFN}(Z(x) + x))$$
+**Expected Answer**: $$\text{Z}(x) = \text{LayerNorm}(x + \text{Attention}(x))$$ $$\text{FFN}(x) = \text{ReLU}(xW_1 + b_1)W_2 + b_2$$ $$\text{Encoder}(x) = \text{LayerNorm}(Z(x) + \text{FFN}(Z(x) + x))$$
 
 1. Explain this formula and what it is for: $\text{Z}(x) = \text{LayerNorm}(x + \text{Attention}(x))$
 **Expected Answer**: This equation is the multi-headed attention sub-layer of the encoder that gets normalized before it is passed to the FFN sub-layer
