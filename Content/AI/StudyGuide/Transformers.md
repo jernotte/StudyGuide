@@ -256,7 +256,8 @@
 6. How does the GPT (Generative Pre-trained Transformer) architecture differ from the standard Transformer model?  
 **Expected Answer**: GPT is a variant of the Transformer model that uses only the decoder part of the original architecture. It is pre-trained on a large corpus of text and fine-tuned for specific tasks. GPT models are designed for generative tasks and have a unidirectional nature, meaning each token can only attend to previous tokens.
 
-1. Explain each component in the image ![Transformer Architecture](../Resources/transformer.png)
+1. Explain each component in the image 
+![Transformer Architecture](../Resources/transformer.png)  
 **Expected Answer**: Reference the other questions for each component.
 
 ### Implementation and Usage
