@@ -23,7 +23,7 @@
 **Expected Answer**: GenAI models are oftentimes artifacts persisted in pickle, pytorch, joblib, numpy, or tensorflow formats. Each of these formats allow for serialiazation persistence mechanisms that, in turn, allow for arbitrary code execution when deserialized. Enforce the use of safetensor or other formats that don't execute code during deserialization.
 
 1. What is a Poisoning attack and its mitigation?  
-**Expected Answer**: GenAI needs large sets of data to train. This requires developers to scrape data from a wider range of uncurated sources. Dataset publishers only provide a list of URLs to constitute the dataset, and the domains serving those URLs can expire or be purchased, and the resources can be replaced by an attacker. For data dependencies, verifying web downloads by publishing (by the provider) cryptographic hashes and verifying (by the downloader) training data as a basic integrity check to ensure that domain hijacking has not injected new sources of data into the training dataset.
+**Expected Answer**: GenAI needs large sets of data to train. This requires developers to scrape data from a wider range of uncurated sources. Dataset publishers only provide a list of URLs to constitute the dataset, and the domains serving those URLs can expire or be purchased, and the resources can be replaced by an attacker. For data dependencies, verifying web downloads by publishing (by the provider) cryptographic hashes and verifying (by the downloader) training data as a basic integrity check to ensure that domain hijacking has not injected new sources of data into the training dataset. Training data sanitization clean the training set and remove the poisoned samples before the machine learning training is performed.
 
 1. What is a Direct Prompt Injection?  
 **Expected Answer**: A direct prompt injection occurs when a user injects text that is intended to alter the behavior of the LLM. Generally the main goal is to bypass safeguards (jailbreak) or extract sensitive information from the system or about the system.
@@ -92,3 +92,49 @@
    1. Training for alignment: Model providers create built-in mechanisms by training with stricter forward alignment. For example, model alignment can be tuned by training on carefully curated and prealigned datasets. It can then be iteratively improved through reinforcement learning with human feedback.
    2. Prompt instruction and formatting techniques: LLM instructions can cue the model to treat user input carefully. For example, by appending specifc instructions to the prompt, the model can be informed about subsequent content that may constitute a jailbreak. Positioning the user input before the prompt takes advantage of recency bias in following instructions. Encapsulating the prompt in random characters or special HTML tags provides cues to the model about what constitutes system instructions versus user prompts.
    3. Detection techniques: Evaluate a distinctly prompted LLM that can aid in distinguishing potentially adversarial prompts
+
+1. What is Indirect Prompt Injection?  
+**Expected Answer**: Indirect Prompt Injection attacks are enabled by resource control such that an attacker can indirectly or remotely inject system prompts without directly interacting its system integrations. LLMs can be integrated into complex systems that rely on their outputs, such as RAG. These retrieval tasks have blurred the line between data and instructions. These integrated systems allow for attacker techniques that leverage the data channel to affect system operation, similar to SQL injection attacks. 
+
+1. What are some Indirect Prompt Injection attacks that impact Availability?  
+**Expected Answer**: 
+   
+   1. Time-consuming background tasks: The prompt instructs the model to perform a time-consuming task prior to answering the request.
+   2. Muting: This attack exploits the fact that a model cannot fnish sentences when an <|endoftext|> token appears in the middle of a user’s request. By including a request to begin a sentence with this token, a search agent, for example, will return without any generated text.
+   3. Inhibiting capabilities: An embedded prompt instructs the model that it is not permitted to use certain APIs (e.g., the search functionality for Bing Chat). This selectively disarms key components of the service.
+   4. Disrupting input or output: An indirect prompt injection instructs the model to replace characters in retrieved text with homoglyph equivalents, disrupting calls to APIs that depend on the text. Alternatively, the prompt can instruct the model to corrupt the results of a query to result in a useless retrieval or summary.
+
+1. What are some Indirect Prompt Injection attacks that impact Integrity?  
+**Expected Answer**: 
+   
+   1. Manipulation: The manipulation attack instructs the model to provide wrong answers and causes the model’s answer to make claims that contradict the cited sources.
+      1. Wrong summaries. A model can be prompted to produce adversarially chosen or arbitrarily wrong summaries of documents, emails, or search queries
+      2. Propagate disinformation. Search chatbots can be prompted to propagate disinformation by relying on or perpetuating untrustworthy news sources or the outputs of other search chatbots
+
+1. What are some Indirect Prompt Injection attacks that impact Privacy?  
+**Expected Answer**: 
+
+   1. Human-in-the-loop dndirect prompting:  Read operations (e.g., triggering a search query that then makes a request to the attacker, or retrieving URLs directly) are exploited to send information to the attacker.
+   2. Interacting in chat sessions: The model persuades a user to follow a URL into which the attacker inserts the user’s name.
+   3. Invisible markdown image: A prompt injection is performed on a chatbot by modifying the chatbot answer with an invisible single-pixel markdown image that withdraws the user’s chat data to a malicious third party.
+
+1. What are some Indirect Prompt Injection attacks that impact Abuse?  
+**Expected Answer**: 
+
+   1. Phishing: It had been demonstrated that LLMs could produce convincing scams, such as phishing emails. LLMs can more easily integrate with applications, they can not only enable the creation of scams but also widely disseminate such attacks.
+   2. Masquerading: LLMs can pretending to be an offcial request from a service provider or recommend a fraudulent website as trusted.
+   3. Spreading injections: The LLM itself acts as a computer running and spreading harmful code. For example, an automatic message processing tool that can read and compose emails and look at users’ personal data can spread an injection to other models that may be reading those inbound messages.
+   4. Spreading malware: LLMs can be exploited to persuade users to visit malicious web pages that lead to “drive-by downloads.” This is further enabled by markdown links that could be seamlessly generated as part of the answer.
+   5. Bias Amplification: Steering search results toward specifc orientations instead of neutral stances can create an attack to achieve bias amplifcation. 
+
+1. What are some Indirect Prompt Injection mitigations?  
+**Expected Answer**: 
+
+   1. Reinforcement learning from human feedback (RLHF): a type of AI model training whereby human involvement is indirectly used to fne-tune a model. This can be leveraged to better align LLMs with human values and prevent unwanted behaviors. OpenAI’s GPT-4 was fne-tuned using RLHF and has shown a lesser tendency to produce harmful content or hallucinate.
+   2. Filtering retrieved inputs: Processing the retrieved inputs to filter out instructions.
+   3. LLM moderator:  An LLM can be leveraged to detect attacks beyond just fltering clearly harmful outputs. This could be benefcial in detecting attacks that do not depend on retrieved sources but could fail at detecting disinformation or other kinds of manipulation attacks.
+   4. Interpretability-based solutions: These solutions perform outlier detection of prediction trajectories. Researchers have demonstrated that the prediction trajectory of the tuned lens on anomalous inputs could be used to detect anomalous inputs.
+
+1. What is a quantized model and how does it affect its security?  
+**Expected Answer**:  Quantization reduces the computational and memory costs of
+running inference on a given platform by representing the model weights and activations with low-precision data types. For example, quantized models typically use 8-bit integers (int8) instead of the usual 32-bit foating point (foat32) numbers for the original nonquantized model. Quantized models do inherit the vulnerabilities of the original models and bring in additional weaknesses making such models vulnerable to adversarial attacks. Error amplifcation resulting from the reduced computational precision affects adversely the adversarial robustness of the quantized models.
