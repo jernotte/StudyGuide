@@ -10,49 +10,113 @@
 
 #### Questions
 1. What are Transformers in the context of machine learning?
-1. What are the sub-layers within each encoder and decoder of the Transformer, and how do they function?
-1. How are input words processed in the Transformer model?
-1. How are transformers different from previous sequence models like RNNs and LSTMs?
-2. Can you describe the historical development of Transformer models? When were they introduced, and what were the key advancements they brought?
-3. Explain the basic architecture of a Transformer model, highlighting the roles of the encoder and decoder.
-4. What is self-attention in Transformers, and how does it differ from traditional attention mechanisms?
-6. Can you explain the concept of multi-head attention in Transformers and its benefits?
-7. Describe the feed-forward networks in Transformer models. What is their role?
-8. What are layer normalization and dropout in the context of Transformers, and why are they used?
-9. How are Transformers trained, especially considering their parallelizable architecture?
-10. What are some common applications and tasks where Transformer models are particularly effective?
-1. What are Query, Key, and Value vectors in the context of self-attention, and how are they used?
-1. What is the difference between Query, Key matrices and the Value Matrix?
-1. What is the mathematical transformation that the Key and Query matrix? are doing and why is it useful?
-1. Describe the steps involved in the calculation of self-attention.
-1. How does the Transformer model use matrix operations in self-attention calculation?
-1. What is multi-headed attention in the Transformer model, and what are its advantages?
-1. How does positional encoding work in the Transformer model?
-1. What role do residual connections and layer normalization play in the Transformer model?
-1. Explain the role of the decoder in the Transformer model.
-1. Describe the final linear and softmax layers in the Transformer's decoder.
-1. What are the three ways to calculate similarity?
-1. What is the role of the loss function during training?
-3. What is the role of self-attention in a Transformer model?
-4. How does the Transformer model handle positional information?
-1. What is positional encoding?
-1. What is softmax?
-1. What parts of a transformer uses softmax and why?
-1. What is the significance of using multiple encoders and decoders in the Transformer model?
-1. How does the Transformer model handle long-range dependencies in sequences?
-1. Explain the importance of layer normalization in the Transformer architecture.
-1. Describe the training process of the Transformer model in terms of data requirements and computational efficiency.
-5. Explain the multi-head attention mechanism in Transformers.
-6. How does the GPT (Generative Pre-trained Transformer) architecture differ from the standard Transformer model?
-7. Can you describe the process of training a Transformer model like GPT?
-8. What are some challenges in implementing Transformers at scale?
-1. Explain the difference between static and dynamic word embeddings.
-1. How do Transformer models utilize layers to process word embeddings?
-1. Describe the process and significance of the self-attention mechanism in Transformer models.
-1. In the context of next-word prediction, how does a model like GPT-4 generate a new word?
-1. What happens to the word embeddings when a new word is generated and added to the sentence in a language model?
-1. Explain the role of dimensionality in word embeddings and why high-dimensional spaces are used.
-1. Discuss the computational challenges in managing dynamic embeddings in large-scale models like GPT-4.
+2. What are the sub-layers within each encoder and decoder of the Transformer, and how do they function?
+3. How are input words processed in the Transformer model?
+4. How are transformers different from previous sequence models like RNNs and LSTMs?
+5. Can you describe the historical development of Transformer models? When were they introduced, and what were the key advancements they brought?
+6. Explain the basic architecture of a Transformer model.
+7. What is self-attention in Transformers, and how does it differ from traditional attention mechanisms?
+8. What are the three ways to calculate similarity?
+9. How does multi-head attention in Transformers enhance the model's ability to process and interpret input data?
+10. Describe the feed-forward networks in Transformer models. What is their role?
+11. What are layer normalization and dropout in the context of Transformers, and why are they used?
+12. How are Transformers trained, especially considering their parallelizable architecture?
+13. What are some common applications and tasks where Transformer models are particularly effective?
+14. What are Query, Key, and Value vectors in the context of self-attention, and how are they used?
+15. What is the difference between Query, Key matrices and the Value Matrix?
+16. What is the mathematical transformation that the Key and Query matrix? are doing and why is it useful?
+17. Describe the steps involved in the calculation of self-attention.
+18. How does the Transformer model use matrix operations in self-attention calculation?
+19. Describe the structural design and functional advantages of multi-headed attention in Transformer models?
+20. Describe the process in which mult-headed attention works?
+21. What is the multi-head attention function representation?
+22. What is the single attention function characterized by its own learned projection matrices?
+23. What is the step-by-step procedure for computing multi-head attention?
+24. How does positional encoding work in the Transformer model?
+25. What could the equations look like for the whole encoder?
+26. Explain this formula and what it is for: $Z(x) = LayerNorm(x + Attention(x))$
+27. Explain this formula and what it is for: $FFN(x) = ReLU(xW_1 + b_1)W_2 + b_2$
+28. Explain this formula and what it is for: $Encoder(x) = LayerNorm(Z(x) + FFN(Z(x) + x))$
+29. What role do residual connections and layer normalization play in the Transformer model?
+30. What are residual connections?
+31. What is the Vanishing Gradient Problem?
+32. What is the Exploding Gradient Problem?
+33. What is layer normalization?
+34. What is the formula of layer normalization and explain it?
+35. In layer normalization what is the purpose of γ and β?
+36. What is the formula for the feed-forward function (FFN) and describe the three different components of it and why they are important?
+37. Why do the feed-forward layers in a Transformer's encoder and decoder first expand and then reduce the dimensionality of data (e.g., from 512 to 2048, then back to 512)?
+38. Explain the role of the decoder in the Transformer model.
+39. Describe the final linear and softmax layers in the Transformer's decoder.
+40. What is the role of the loss function during training?
+41. What is the role of self-attention in a Transformer model?
+42. How does the Transformer model handle positional information?
+43. What is positional encoding?
+44. What is softmax?
+45. What parts of a transformer use softmax and why?
+46. What is the significance of using multiple encoders and decoders in the Transformer model?
+47. If we have 8 heads and 2 encoders in our transformer, explain the input and output of each encoder layer
+48. Is the word embedding matrix used after the first encoder layer?
+49. How does the Transformer model handle long-range dependencies in sequences?
+50. Explain the importance of layer normalization in the Transformer architecture.
+51. Why do we use ReLU as the activation function, where is it used in the transformer and how does it improve the model?
+52. Describe the training process of the Transformer model in terms of data requirements and computational efficiency.
+53. In the self-attention mechanism, we calculate the queries, keys, and values from the input embedding. In the encoder-decoder attention where do we calculate the queries, keys, and values from?
+54. What is the purpose of encoder-decoder attention in the decoder versus just using self-attention?
+55. What is the Linear Layer in the Decoder's Output?
+56. Why is the decoder slower than the encoder?
+57. Why is a bias term crucial in the output linear layer after performing the dot product between the decoder's output and the weight matrix?
+58. What would happen if our attention dimension was too small? What about if it was too large?
+59. How does the GPT (Generative Pre-trained Transformer) architecture differ from the standard Transformer model?
+60. Explain each component in the image Transformer Architecture
+61. Can you describe the process of training a Transformer model like GPT?
+62. What are some challenges in implementing Transformers at scale?
+63. What is a word embedding?
+64. Explain the difference between static and dynamic word embeddings.
+65. How do Transformer models utilize layers to process word embeddings?
+66. Describe the process and significance of the self-attention mechanism in Transformer models.
+67. In the context of next-word prediction, how does a model like GPT-4 generate a new word?
+68. What happens to the word embeddings when a new word is generated and added to the sentence in a language model?
+69. Explain the role of dimensionality in word embeddings and why high-dimensional spaces are used.
+70. Discuss the computational challenges in managing dynamic embeddings in large-scale models like GPT-4.
+71. What is SOS and EOS in the transformer model?
+72. What is the formula for the feed-forward function (FFN) and describe the three different components of it and why they are important?
+73. Why do the feed-forward layers in a Transformer's encoder and decoder first expand and then reduce the dimensionality of data (e.g., from 512 to 2048, then back to 512)?
+74. Explain the role of the decoder in the Transformer model.
+75. Describe the final linear and softmax layers in the Transformer's decoder.
+76. What is the role of the loss function during training?
+77. What is the role of self-attention in a Transformer model?
+78. How does the Transformer model handle positional information?
+79. What is positional encoding?
+80. What is softmax?
+81. What parts of a transformer use softmax and why?
+82. What is the significance of using multiple encoders and decoders in the Transformer model?
+83. If we have an 8 heads and 2 encoders in our transformer, explain the input and output of each encoder layer?
+84. Is the word embedding matrix used after the first encoder layer?
+85. How does the Transformer model handle long-range dependencies in sequences?
+86. Explain the importance of layer normalization in the Transformer architecture.
+4. Why do we use ReLU as the activation function, where is it used in the transformer and how does it improve the model?
+5. Describe the training process of the Transformer model in terms of data requirements and computational efficiency.
+6. In the self-attention mechanism, we calculate the queries, keys, and values from the input embedding. In the encoder-decoder attention where do we calculate the queries, keys, and values from?
+7. What is the purpose of encoder-decoder attention in the decoder versus just using self-attention?
+8. What is the Linear Layer in the Decoder's Output?
+9. Why is the decoder slower than the encoder?
+10. Why is a bias term crucial in the output linear layer after performing the dot product between the decoder's output and the weight matrix?
+11. What would happen if our attention dimension was too small? What about if it was too large?
+12. How does the GPT (Generative Pre-trained Transformer) architecture differ from the standard Transformer model?
+13. Explain each component in the image (Transformer Architecture)
+14. Can you describe the process of training a Transformer model like GPT?
+15. What are some challenges in implementing Transformers at scale?
+16. What is a word embedding?
+17. Explain the difference between static and dynamic word embeddings.
+18. How do Transformer models utilize layers to process word embeddings?
+19. Describe the process and significance of the self-attention mechanism in Transformer models.
+20. In the context of next-word prediction, how does a model like GPT-4 generate a new word?
+21. What happens to the word embeddings when a new word is generated and added to the sentence in a language model?
+22. Explain the role of dimensionality in word embeddings and why high-dimensional spaces are used.
+23. Discuss the computational challenges in managing dynamic embeddings in large-scale models like GPT-4.
+24. What is SOS and EOS in the transformer model?
+
 
 ### AI/ML
 
@@ -72,7 +136,7 @@
 **Expected Answer**: Self-attention, a key component of Transformers, allows each position in the sequence to attend to all positions in the previous layer of the model, thus enabling parallel processing. It differs from traditional attention mechanisms by focusing on different parts of the same input sequence to compute the representation.
 1. What are the three ways to calculate similarity?  
 **Expected Answer**: Dot product, Cosine similarity, Scaled dot product.
-6. Can you explain the concept of multi-head attention in Transformers and its benefits?  
+6. How does multi-head attention in Transformers enhance the model's ability to process and interpret input data?  
 **Expected Answer**: Multi-head attention splits the attention mechanism into multiple heads, allowing the model to simultaneously attend to information at different positions and from different representational spaces. This enables the model to capture a richer understanding of the input.
 7. Describe the feed-forward networks in Transformer models. What is their role?  
 **Expected Answer**: Each layer of a Transformer contains a feed-forward network, which applies two linear transformations and a ReLU activation in between. These networks are position-wise, meaning they operate on each position independently and identically. Their role is to process the output of the attention layer and introduce non-linearity into the model.
@@ -99,7 +163,7 @@
 1. How does the Transformer model use matrix operations in self-attention calculation?  
 **Expected Answer**: In the Transformer, self-attention calculations are efficiently executed using matrix operations. Query, Key, and Value matrices are formed by multiplying the input embedding matrix with trained weight matrices. These matrix operations enable the model to process all words simultaneously, leading to faster computation​​.
 
-1. What is multi-headed attention in the Transformer model, and what are its advantages?  
+1. Describe the structural design and functional advantages of multi-headed attention in Transformer models?  
 **Expected Answer**: Multi-headed attention is an extension of the self-attention mechanism where the model uses multiple sets of Query/Key/Value weight matrices. This approach allows the model to focus on different positions and representation subspaces, enhancing its ability to capture various aspects of the input sequence. Each head contributes to a more comprehensive representation of the input​​. The idea behind multi-head attention is to allow the attention function to extract information from different representation subspaces, which would otherwise be impossible with a single attention head
 
 1. Describe the process in which mult-headed attention works?  
@@ -249,9 +313,6 @@
 
 1. What would happen if our attention dimension was too small? What about if it was too large?  
 **Expected Answer**: The attention dimension in a Transformer model determines how much information the model can process and learn from in each attention operation. If this dimension is too small, the model may not have enough capacity to effectively capture and learn complex relationships in the data, leading to underfitting. On the other hand, if the attention dimension is too large, the model might become too complex, leading to overfitting on the training data and unnecessary increases in computational requirements and training time
-
-5. Explain the multi-head attention mechanism in Transformers.  
-**Expected Answer**: Multi-head attention in Transformers involves splitting the attention mechanism into multiple heads. Each head focuses on different parts of the input, allowing the model to capture various aspects of the information. This parallel processing leads to a more comprehensive understanding of the input.
 
 6. How does the GPT (Generative Pre-trained Transformer) architecture differ from the standard Transformer model?  
 **Expected Answer**: GPT is a variant of the Transformer model that uses only the decoder part of the original architecture. It is pre-trained on a large corpus of text and fine-tuned for specific tasks. GPT models are designed for generative tasks and have a unidirectional nature, meaning each token can only attend to previous tokens.
