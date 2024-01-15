@@ -24,7 +24,7 @@
 13. What are some common applications and tasks where Transformer models are particularly effective?
 14. What are Query, Key, and Value vectors in the context of self-attention, and how are they used?
 15. What is the difference between Query, Key matrices and the Value Matrix?
-16. What is the mathematical transformation that the Key and Query matrix? are doing and why is it useful?
+16. What is the mathematical transformation that the Key and Query matrix are doing and why is it useful?
 17. Describe the steps involved in the calculation of self-attention.
 18. How does the Transformer model use matrix operations in self-attention calculation?
 19. Describe the structural design and functional advantages of multi-headed attention in Transformer models?
