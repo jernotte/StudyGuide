@@ -64,5 +64,35 @@ Content will be separated by attack types.
 **Expected Answer**: A Time-of-Check to Time-of-Use (TOCTOU) race condition occurs when a program checks the state of a resource, like a file or a database entry, and then uses that resource based on the check's results at a later time. If the resource's state changes between the check and the use, it can lead to inconsistencies or security vulnerabilities. For example, a program might check if a file exists and has the right permissions, but by the time it actually reads the file, the file might have been changed or replaced.
 To mitigate TOCTOU vulnerabilities, one effective strategy is to perform the check and the use of the resource as a single atomic operation, ensuring that the state does not change between the check and the use. Another approach is to use file locks or transactional mechanisms where the resource is locked during the check and remains locked until the use is completed.
 
+##### Prototype Pollution
 
+1. What is prototype pollution?  
+**Expected Answer**: Prototype pollution is a JavaScript vulnerability that enables an attacker to add arbitrary properties to global object prototypes, which may then be inherited by user-defined objects. Although prototype pollution is often unexploitable as a standalone vulnerability, it lets an attacker control properties of objects that would otherwise be inaccessible. If the application subsequently handles an attacker-controlled property in an unsafe way, this can potentially be chained with other vulnerabilities. In client-side JavaScript, this commonly leads to DOM XSS, while server-side prototype pollution can even result in remote code execution.
 
+1. How do prototype pollution vulnerabilities arise?  
+**Expected Answer**: when a JavaScript function recursively merges an object containing user-controllable properties into an existing object, without first sanitizing the keys. This can allow an attacker to inject a property with a key like __proto__, along with arbitrary nested properties. The merge operation may assign the nested properties to the object's prototype instead of the target object itself. As a result, the attacker can pollute the prototype with properties containing harmful values, which may subsequently be used by the application in a dangerous way.
+
+1. What is the special meaning of the __proto__ property?  
+**Expected Answer**: Every object has a special property that you can use to access its prototype. Although this doesn't have a formally standardized name, __proto__ is the de facto standard used by most browsers. This property serves as both a getter and setter for the object's prototype. This means you can use it to read the prototype and its properties, and even reassign them if necessary. 
+
+1. Is it possible to pollute any prototype object?  
+**Expected Answer**: Yes, but this commonly occurs with the built-in global `Object.prototype`.
+
+1. Exploitation of prototype pollution requires the what key components?  
+**Expected Answer**: 
+
+   * A prototype pollution source - This is any input that enables you to poison prototype objects with arbitrary properties.
+   * A sink - In other words, a JavaScript function or DOM element that enables arbitrary code execution.
+   * An exploitable gadget - This is any property that is passed into a sink without proper filtering or sanitization.
+
+1. What are prototype pollution sources?  
+**Expected Answer**: A prototype pollution source is any user-controllable input that enables you to add arbitrary properties to prototype objects. The most common sources are as follows:
+
+   * The URL via either the query or fragment string (hash)
+   * JSON-based input
+   * Web messages
+
+1. Explain how prototype pollution via the URL works?  
+**Expected Answer**: For the url `https://vuln.com/?__proto__[evilProperty]=payload`. A URL parser may interpret __proto__ as an arbitrary string, but if `key:value` are merged into an existing object as properties. The recursive merge operation may assign the value of evilProperty using a statement equivalent to the following: `targetObject.__proto__.evilProperty = 'payload';` During this assignment, the JavaScript engine treats __proto__ as a getter for the prototype. As a result, evilProperty is assigned to the returned prototype object rather than the target object itself. Assuming that the target object uses the default Object.prototype, all objects in the JavaScript runtime will now inherit evilProperty, unless they already have a property of their own with a matching key.
+
+ 
