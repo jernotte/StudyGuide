@@ -9,10 +9,13 @@
 1. What is a race condition?
 2. What is a race window?
 3. What is a limit overrun race condition?
-4. 
-5. 
-6. 
-7. 
+4. How do you detect and exploit limit overrun race conditions?
+5. What is the primary challenge for exploiting limit overrun race conditions?
+6. What are the two mechanism that burp uses to reduce the challenges, mainly network jitter, and which version of HTTP are they used for? 
+7. What is the Classic Last-Byte Synchronization Technique (for HTTP/1)?  
+8. What is the Single-Packet Attack Technique (for HTTP/2)?
+9. Explain how to prevent race condition vulnerabilities. 
+10. Explain what a Time-of-Check to Time-of-Use (TOCTOU) race condition is and provide a strategy for mitigating such vulnerabilities.
 
 ### Web Security
 
