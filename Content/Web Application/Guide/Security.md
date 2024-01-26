@@ -86,6 +86,33 @@
 24. How to protect against clickjacking using CSP?  
 25. How to prevent XSS attacks?
 
+**Cross-Site Request Forgery (CSRF)**:
+1. What is CSRF? 
+2. What is the impact of a CSRF attack?  
+3. How does CSRF work?
+4. How do you construct a CSRF attack? 
+5. What are some common defenses against CSRF?
+6. What is a common way to share CSRF tokens with the client?
+7. Why does a CSRF token when implemented correctly stop CSRF attacks?
+8. What are some flaws in CSRF token validation?
+9. What is SameSite?
+10. What is a site in the context of SameSite cookies?
+11. What's the difference between a site and an origin?
+12. SameSite vs SameOrigin?
+13. How does SameSite work? 
+14. What are the SameSite restriction levels? 
+15. What is an example that would necessitate SameSite=None?  
+16. When setting a cookie with SameSite=None, what attribute must also be included? 
+17. How does bypassing SameSite Lax restrictions using GET requests work?
+18. How does bypassing SameSite restrictions using on-site gadgets work?
+19. How does bypassing SameSite restrictions via vulnerable sibling domains work?
+20. How does bypassing SameSite Lax restrictions with newly issued cookies work? 
+21. What is the Referer header?
+22. What are way to bypass Referer header validation?
+23. How to prevent CSRF vulnerabilities?
+24. The alternative approach, of placing the token into the URL query string, is somewhat less safe because the query string is?
+25. How should CSRF tokens be validated?  
+
 
 ### Web Security
 
@@ -414,6 +441,138 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
    * Encode data on output. At the point where user-controllable data is output in HTTP responses, encode the output to prevent it from being interpreted as active content. Depending on the output context, this might require applying combinations of HTML, URL, JavaScript, and CSS encoding.
    * Use appropriate response headers. To prevent XSS in HTTP responses that aren't intended to contain any HTML or JavaScript, you can use the Content-Type and X-Content-Type-Options headers to ensure that browsers interpret the responses in the way you intend.
    * Content Security Policy. As a last line of defense, you can use Content Security Policy (CSP) to reduce the severity of any XSS vulnerabilities that still occur.
+
+
+#### Cross-Site Request Forgery (CSRF)
+
+1. What is CSRF?  
+**Expected Answer**: Cross-site request forgery (also known as CSRF) is a web security vulnerability that allows an attacker to induce users to perform actions that they do not intend to perform. It allows an attacker to partly circumvent the same origin policy, which is designed to prevent different websites from interfering with each other.
+
+1. What is the impact of a CSRF attack?  
+**Expected Answer**: In a successful CSRF attack, the attacker causes the victim user to carry out an action unintentionally. For example, this might be to change the email address on their account, to change their password, or to make a funds transfer. 
+
+1. How does CSRF work?  
+**Expected Answer**: For a CSRF attack to be possible, three key conditions must be in place:
+
+   * A relevant action: There is an action within the application that the attacker has a reason to induce. This might be a privileged action (such as modifying permissions for other users) or any action on user-specific data (such as changing the user's own password).
+   * Cookie-based session handling: Performing the action involves issuing one or more HTTP requests, and the application relies solely on session cookies to identify the user who has made the requests. There is no other mechanism in place for tracking sessions or validating user requests.
+   * No unpredictable request parameters. The requests that perform the action do not contain any parameters whose values the attacker cannot determine or guess. For example, when causing a user to change their password, the function is not vulnerable if an attacker needs to know the value of the existing password.
+
+1. How do you construct a CSRF attack?  
+**Expected Answer**: This is done by embedding a request in a hidden form or a script on an attacker controlled website. For example, if targeting a web application with a form submission (like a change of password form), the attacker would replicate the form on their own site. This form would have the same input fields and action attribute pointing to the target application's endpoint. However, the values would be set by the attacker. When the victim visits the attacker’s site, perhaps through a phishing link, and if they are already authenticated to the target application, submitting this form (either willingly or through automatic JavaScript submission) would send a legitimate-looking request to the target application. 
+
+1. What are some common defenses against CSRF?  
+**Expected Answer**: 
+
+   * CSRF tokens: A CSRF token is a unique, secret, and unpredictable value that is generated by the server-side application and shared with the client. When attempting to perform a sensitive action, such as submitting a form, the client must include the correct CSRF token in the request. This makes it very difficult for an attacker to construct a valid request on behalf of the victim.
+   * SameSite cookies: SameSite is a browser security mechanism that determines when a website's cookies are included in requests originating from other websites. As requests to perform sensitive actions typically require an authenticated session cookie, the appropriate SameSite restrictions may prevent an attacker from triggering these actions cross-site. Since 2021, Chrome enforces Lax SameSite restrictions by default. As this is the proposed standard, we expect other major browsers to adopt this behavior in future.
+   * Referer-based validation: Some applications make use of the HTTP Referer header to attempt to defend against CSRF attacks, normally by verifying that the request originated from the application's own domain. This is generally less effective than CSRF token validation.
+
+1. What is a common way to share CSRF tokens with the client?  
+**Expected Answer**: A common way to share CSRF tokens with the client is to include them as a hidden parameter in an HTML form: `<input required type="hidden" name="csrf" value="50FaWgdOhi9M9wyna8taR1k3ODOR8d6u">`. Some applications place CSRF tokens in HTTP headers.
+
+1. Why does a CSRF token when implemented correctly stop CSRF attacks?  
+**Expected Answer**: CSRF tokens help protect against CSRF attacks by making it difficult for an attacker to construct a valid request on behalf of the victim. As the attacker has no way of predicting the correct value for the CSRF token, they won't be able to include it in the malicious request.
+
+1. What are some flaws in CSRF token validation?  
+**Expected Answer**: 
+
+   * Validation of CSRF token depends on request method: Correctly validate the token when the request uses the POST method but skip the validation when the GET method is used. Simply switching the request to the GET method would bypass the CSRF token validation.
+   * Validation of CSRF token depends on token being present: Correctly validate the token when it is present but skip the validation if the token is omitted.
+   * CSRF token is not tied to the user session: Does not validate that the token belongs to the same session as the user who is making the request. Instead, the application maintains a global pool of tokens that it has issued and accepts any token that appears in this pool.
+   * CSRF token is tied to a non-session cookie: Some applications do tie the CSRF token to a cookie, but not to the same cookie that is used to track sessions. This can easily occur when an application employs two different frameworks, one for session handling and one for CSRF protection, which are not integrated together. This situation is harder to exploit but is still vulnerable. If the web site contains any behavior that allows an attacker to set a cookie in a victim's browser, then an attack is possible. The attacker can log in to the application using their own account, obtain a valid token and associated cookie, leverage the cookie-setting behavior to place their cookie into the victim's browser, and feed their token to the victim in their CSRF attack.
+   * CSRF token is simply duplicated in a cookie: some applications do not maintain any server-side record of tokens that have been issued, but instead duplicate each token within a cookie and a request parameter. When the subsequent request is validated, the application simply verifies that the token submitted in the request parameter matches the value submitted in the cookie. This is sometimes called the "double submit" defense against CSRF, and is advocated because it is simple to implement and avoids the need for any server-side state. The attacker can again perform a CSRF attack if the web site contains any cookie setting functionality. Here, the attacker doesn't need to obtain a valid token of their own. They simply invent a token (perhaps in the required format, if that is being checked), leverage the cookie-setting behavior to place their cookie into the victim's browser, and feed their token to the victim in their CSRF attack.
+
+1. What is SameSite?  
+**Expected Answer**: SameSite is a browser security mechanism that determines when a website's cookies are included in requests originating from other websites. SameSite cookie restrictions provide partial protection against a variety of cross-site attacks, including CSRF, cross-site leaks, and some CORS exploits. 
+
+1. What is a site in the context of SameSite cookies?  
+**Expected Answer**: A site is defined as the top-level domain (TLD), usually something like `.com` or `.net`, plus one additional level of the domain name. This is often referred to as the TLD+1. When determining whether a request is same-site or not, the URL scheme is also taken into consideration. This means that a link from `http://app.example.com` to `https://app.example.com` is treated as cross-site by most browsers. ![](../Resources/site-definition.png)
+
+1. What's the difference between a site and an origin?  
+**Expected Answer**: The difference between a site and an origin is their scope; a site encompasses multiple domain names, whereas an origin only includes one. Although they're closely related, it's important not to use the terms interchangeably as conflating the two can have serious security implications. Two URLs are considered to have the same origin if they share the exact same scheme, domain name, and port. Although note that the port is often inferred from the scheme. ![](../Resources/site-vs-origin.png)
+
+1. SameSite vs SameOrigin?
+   | Request from | Request to | Same-site?| Same-origin? |
+   | ----------- | ----------- | ----------- | ----------- |
+   | https://example.com     | https://example.com       | ? | ? |
+   | https://app.example.com   | https://intranet.example.com        | ? | ? |  
+   | https://example.com   | https://example.com:8080        | ? | ? |  
+   | https://example.com  | https://example.co.uk        | ? | ? |  
+   | https://example.com	   | http://example.com        | ? | ? |  
+
+   **Expected Answer**: 
+   | Request from | Request to | Same-site?| Same-origin? |
+   | ----------- | ----------- | ----------- | ----------- |
+   | https://example.com     | https://example.com       | Yes | Yes |
+   | https://app.example.com   | https://intranet.example.com        | Yes | No: mismatched domain name |  
+   | https://example.com   | https://example.com:8080        | Yes | No: mismatched port |  
+   | https://example.com  | https://example.co.uk        | No: mismatched eTLD | No: mismatched domain name |  
+   | https://example.com	   | http://example.com        | No: mismatched scheme | No: mismatched scheme | 
+
+1. How does SameSite work?  
+**Expected Answer**: SameSite works by enabling browsers and website owners to limit which cross-site requests, if any, should include specific cookies. 
+
+
+1. What are the SameSite restriction levels?  
+**Expected Answer**: 
+
+   * Strict: Browsers will not send it in any cross-site requests. If the target site for the request does not match the site currently shown in the browser's address bar, it will not include the cookie.
+   * Lax: Browsers will send the cookie in cross-site requests, but only if both of the following conditions are met: The request uses the GET method; The request resulted from a top-level navigation by the user, such as clicking on a link. The cookie is not included in background requests, such as those initiated by scripts, iframes, or references to images and other resources.
+   * None: This effectively disables SameSite restrictions altogether, regardless of the browser. As a result, browsers will send this cookie in all requests to the site that issued it, even those that were triggered by completely unrelated third-party sites.
+
+1. What is an example that would necessitate SameSite=None?  
+**Expected Answer**: There are legitimate reasons for disabling SameSite, such as when the cookie is intended to be used from a third-party context and doesn't grant the bearer access to any sensitive data or functionality. Tracking cookies are a typical example.
+
+1. When setting a cookie with SameSite=None, what attribute must also be included?  
+**Expected Answer**: The website must also include the Secure attribute, which ensures that the cookie is only sent in encrypted messages over HTTPS. Otherwise, browsers will reject the cookie and it won't be set.
+
+1. How does bypassing SameSite Lax restrictions using GET requests work?  
+**Expected Answer**: Servers aren't always fussy about whether they receive a GET or POST request to a given endpoint, even those that are expecting a form submission. If they also use Lax restrictions for their session cookies, either explicitly or due to the browser default, you may still be able to perform a CSRF attack by eliciting a GET request from the victim's browser. As long as the request involves a top-level navigation, the browser will still include the victim's session cookie. Even if an ordinary GET request isn't allowed, some frameworks provide ways of overriding the method specified in the request line. For example, Symfony supports the _method parameter in forms, which takes precedence over the normal method for routing purposes
+
+1. How does bypassing SameSite restrictions using on-site gadgets work?  
+**Expected Answer**: If a cookie is set with the SameSite=Strict attribute, browsers won't include it in any cross-site requests. You may be able to get around this limitation if you can find a gadget that results in a secondary request within the same site. One possible gadget is a client-side redirect that dynamically constructs the redirection target using attacker-controllable input like URL parameters (DOM). As far as browsers are concerned, these client-side redirects aren't really redirects at all; the resulting request is just treated as an ordinary, standalone request. Most importantly, this is a same-site request and, as such, will include all cookies related to the site, regardless of any restrictions that are in place.
+
+1. How does bypassing SameSite restrictions via vulnerable sibling domains work?  
+**Expected Answer**: A request can still be same-site even if it's issued cross-origin. In particular, vulnerabilities that enable you to elicit an arbitrary secondary request, such as XSS, can compromise site-based defenses completely, exposing all of the site's domains to cross-site attacks. In addition to classic CSRF, don't forget that if the target website supports WebSockets, this functionality might be vulnerable to cross-site WebSocket hijacking (CSWSH), which is essentially just a CSRF attack targeting a WebSocket handshake.
+
+1. How does bypassing SameSite Lax restrictions with newly issued cookies work?  
+**Expected Answer**: Cookies with Lax SameSite restrictions aren't normally sent in any cross-site POST requests, but there are some exceptions. To avoid breaking single sign-on (SSO) mechanisms, it doesn't actually enforce these restrictions for the first 120 seconds on top-level POST requests. As a result, there is a two-minute window in which users may be susceptible to cross-site attacks. This two-minute window does not apply to cookies that were explicitly set with the SameSite=Lax attribute. Somewhat impractical to try timing the attack to fall within this short window. On the other hand, if you can find a gadget on the site that enables you to force the victim to be issued a new session cookie, you can preemptively refresh their cookie before following up with the main attack. For example, completing an OAuth-based login flow may result in a new session each time as the OAuth service doesn't necessarily know whether the user is still logged in to the target site.
+
+1. What is the Referer header?  
+**Expected Answer**: The HTTP Referer header is an optional request header that contains the URL of the web page that linked to the resource that is being requested. It is generally added automatically by browsers when a user triggers an HTTP request, including by clicking a link or submitting a form.
+
+1. What are way to bypass Referer header validation?  
+**Expected Answer**: 
+
+   * Validation of Referer depends on header being present: Validates if header exists, skips if omitted. CSRF exploit will need to cause the victim user's browser to drop the Referer header. Easiest way is to use a META tag within the HTML page that hosts the CSRF attack: `<meta name="referrer" content="never">`
+   * Validation of Referer can be circumvented: if the application validates that the domain in the Referer starts with the expected value, then the attacker can place this as a subdomain of their own domain: `http://vulnerable-website.com.attacker-website.com/csrf-attack`
+
+1. How to prevent CSRF vulnerabilities?  
+**Expected Answer**: CSRF tokens and SameSite
+
+   * CSRF token must meet the following criteria: Unpredictable with high entropy; tied to the user's session; strictly validated in every case before the relevant action is executed.
+   * Explicitly setting the SameSite restrictions with each cookie issued
+
+1. The alternative approach, of placing the token into the URL query string, is somewhat less safe because the query string is?  
+**Expected Answer**: 
+
+   * Is logged in various locations on the client and server side
+   * Is liable to be transmitted to third parties within the HTTP Referer header
+   * Can be displayed on-screen within the user's browser
+
+1. How should CSRF tokens be validated?  
+**Expected Answer**: When a CSRF token is generated, it should be stored server-side within the user's session data. When a subsequent request is received that requires validation, the server-side application should verify that the request includes a token which matches the value that was stored in the user's session. This validation must be performed regardless of the HTTP method or content type of the request. If the request does not contain any token at all, it should be rejected in the same way as when an invalid token is present.
+
+
+
+
+
+
+
+
+
+
 
 
 
