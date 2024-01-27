@@ -6,7 +6,7 @@
 
 #### Questions
 
-**Race conditions**:
+**Race Conditions**:
 1. What is a race condition?
 2. What is a race window?
 3. What is a limit overrun race condition?
@@ -145,6 +145,33 @@
 19. How to find and test for XXE vulnerabilities?
 20. Can you use XML-based functionality for other vulnerabilities?
 21. How to prevent XXE vulnerabilities?
+
+**SQL Injection**:
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+8. 
+9. 
+10. 
+11. 
+12. 
+13. 
+14. 
+15. 
+16. 
+17. 
+18. 
+19. 
+20. 
+21. 
+22. 
+23. 
+24. 
+25. 
 
 
 ### Web Security
@@ -739,6 +766,35 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
 
 1. How to prevent XXE vulnerabilities?  
 **Expected Answer**: Virtually all XXE vulnerabilities arise because the application's XML parsing library supports potentially dangerous XML features that the application does not need or intend to use. The easiest and most effective way to prevent XXE attacks is to disable those features. Generally, it is sufficient to disable resolution of external entities and disable support for XInclude. This can usually be done via configuration options or by programmatically overriding default behavior. Consult the documentation for your XML parsing library or API for details about how to disable unnecessary capabilities.
+
+#### SQL Injection
+
+1. What is SQL injection (SQLi)?  
+**Expected Answer**: A SQL injection attack consists of insertion or “injection” of a SQL query via the input data from the client to the application. A successful SQL injection exploit can read sensitive data from the database, modify database data (Insert/Update/Delete), execute administration operations on the database (such as shutdown the DBMS), recover the content of a given file present on the DBMS file system and in some cases issue commands to the operating system.
+
+1. How to detect SQL injection vulnerabilities?  
+**Expected Answer**: You can detect SQL injection manually using a systematic set of tests against every entry point in the application. To do this, you would typically submit:
+
+   * The single quote character `'` and look for errors or other anomalies.
+   * Some SQL-specific syntax that evaluates to the base (original) value of the entry point, and to a different value, and look for systematic differences in the application responses.
+   * Boolean conditions such as `OR 1=1` and `OR 1=2`, and look for differences in the application's responses.
+   * Payloads designed to trigger time delays when executed within a SQL query, and look for differences in the time taken to respond.
+   * OAST payloads designed to trigger an out-of-band network interaction when executed within a SQL query, and monitor any resulting interactions.
+
+1. What parts of a query can SQL injection occur?  
+**Expected Answer**: Most SQL injection vulnerabilities occur within the `WHERE` clause of a `SELECT` query. However, SQL injection vulnerabilities can occur at any location within the query, and within different query types. Some other common locations where SQL injection arises are:
+
+   * In `UPDATE` statements, within the updated values or the `WHERE` clause.
+   * In `INSERT` statements, within the inserted values.
+   * In `SELECT` statements, within the table or column name.
+   * In `SELECT` statements, within the `ORDER BY` clause.
+
+
+
+
+
+
+
 
 
 
