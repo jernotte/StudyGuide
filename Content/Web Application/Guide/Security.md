@@ -113,6 +113,18 @@
 24. The alternative approach, of placing the token into the URL query string, is somewhat less safe because the query string is?
 25. How should CSRF tokens be validated?  
 
+**Server-Side Request Forgery (SSRF)**:
+1. What is SSRF?  
+2. What is the impact of SSRF attacks?
+3. What are some ways to deal with an SSRF with blacklist-based input filters?
+4. What are some ways to deal with an SSRF with whitelist-based input filters?
+5. What is blind SSRF?  
+6. How to find and exploit blind SSRF vulnerabilities?  
+7. How does SSRF via the Referer header work?
+8. What are some SSRF mitigations?
+
+**XML External Entity (XXE) Injection**:
+
 
 ### Web Security
 
@@ -565,16 +577,47 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
 **Expected Answer**: When a CSRF token is generated, it should be stored server-side within the user's session data. When a subsequent request is received that requires validation, the server-side application should verify that the request includes a token which matches the value that was stored in the user's session. This validation must be performed regardless of the HTTP method or content type of the request. If the request does not contain any token at all, it should be rejected in the same way as when an invalid token is present.
 
 
+#### Server-Side Request Forgery (SSRF)
+
+1. What is SSRF?  
+**Expected Answer**: Server-side request forgery is a web security vulnerability that allows an attacker to cause the server-side application to make requests to an unintended location.
+
+1. What is the impact of SSRF attacks?  
+**Expected Answer**: A successful SSRF attack can often result in unauthorized actions or access to data within the organization. This can be in the vulnerable application, or on other back-end systems that the application can communicate with. In some situations, the SSRF vulnerability might allow an attacker to perform arbitrary command execution.
+
+1. What are some ways to deal with an SSRF with blacklist-based input filters?  
+**Expected Answer**: 
+
+   * Use an alternative IP representation of 127.0.0.1, such as 2130706433, 017700000001, or 127.1.
+   * Register your own domain name that resolves to 127.0.0.1. You can use spoofed.burpcollaborator.net for this purpose.
+   * Obfuscate blocked strings using URL encoding or case variation.
+   * Provide a URL that you control, which redirects to the target URL. Try using different redirect codes, as well as different protocols for the target URL. For example, switching from an http: to https: URL during the redirect has been shown to bypass some anti-SSRF filters.
+
+1. What are some ways to deal with an SSRF with whitelist-based input filters?  
+**Expected Answer**: May be able to bypass this filter by exploiting inconsistencies in URL parsing:
+
+   * Embed credentials in a URL before the hostname, using the @ character. For example: `https://expected-host:fakepassword@evil-host`
+   * Use the # character to indicate a URL fragment. For example: `https://evil-host#expected-host`
+   * Leverage the DNS naming hierarchy to place required input into a fully-qualified DNS name that you control. For example: `https://expected-host.evil-host`
+   * URL-encode characters to confuse the URL-parsing code. This is particularly useful if the code that implements the filter handles URL-encoded characters differently than the code that performs the back-end HTTP request. You can also try double-encoding characters; some servers recursively URL-decode the input they receive, which can lead to further discrepancies.
+
+1. What is blind SSRF?  
+**Expected Answer**: Blind SSRF vulnerabilities arise when an application can be induced to issue a back-end HTTP request to a supplied URL, but the response from the back-end request is not returned in the application's front-end response.
+
+1. How to find and exploit blind SSRF vulnerabilities?  
+**Expected Answer**: The most reliable way to detect blind SSRF vulnerabilities is using out-of-band (OAST) techniques. This involves attempting to trigger an HTTP request to an external system that you control, and monitoring for network interactions with that system.
+
+1. How does SSRF via the Referer header work?  
+**Expected Answer**: Some applications use server-side analytics software to tracks visitors. This software often logs the Referer header in requests, so it can track incoming links. Often the analytics software visits any third-party URLs that appear in the Referer header. This is typically done to analyze the contents of referring sites, including the anchor text that is used in the incoming links. As a result, the Referer header is often a useful attack surface for SSRF vulnerabilities. 
+
+1. What are some SSRF mitigations?  
+**Expected Answer**: 
+
+   * Maintain a whitelist of allowed IPs or hostnames, and compare the resolved IP/hostname of the input URL against this list.
+   * Employ network segmentation and firewall rules to limit the server’s ability to initiate requests to sensitive or internal resources.
 
 
-
-
-
-
-
-
-
-
+#### XML External Entity (XXE) Injection
 
 
 
