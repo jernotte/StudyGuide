@@ -172,6 +172,17 @@
 23.  If an application places untrusted input into tables or column names, or the `ORDER BY` clause, how can this be remediated?  
 24. What is a prepared statement? 
 
+**Clickjacking**:
+1. What is clickjacking?  
+2. How to construct a basic clickjacking attack?
+3. When are clickjacking attacks possible?  
+4. What are frame busting scripts?  
+5. What is an effective attacker workaround against frame busters?
+6. What are the key elements that make combining clickjacking with a DOM-based Cross-Site Scripting (DXSS) attack particularly effective?  
+7. How to prevent clickjacking attacks?
+8. How to prevent clickjacking attacks with X-Frame-Options?
+9. How to prevent clickjacking attacks with Content Security Policy (CSP)? 
+
 
 ### Web Security
 
@@ -889,5 +900,38 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
 1. What is a prepared statement?  
 **Expected Answer**: Prepared statements separate the SQL code from the data. This separation means that user input is treated as data only and not part of the SQL command, preventing attackers from injecting malicious code. A typical prepared statement starts with defining the SQL query structure with placeholders for parameters. Each time a query is executed, the database server replaces the placeholders with the provided parameter values, ensuring these values are properly escaped and treated as data.
 
+#### Clickjacking 
+
+1. What is clickjacking?  
+**Expected Answer**: Clickjacking is an interface-based attack in which a user is tricked into clicking on actionable content on a hidden website by clicking on some other content in a decoy website. The technique depends upon the incorporation of an invisible, actionable web page (or multiple pages) containing a button or hidden link, say, within an iframe. The iframe is overlaid on top of the user's anticipated decoy web page content. 
+
+1. How to construct a basic clickjacking attack?  
+**Expected Answer**: Clickjacking attacks use CSS to create and manipulate layers. The attacker incorporates the target website as an iframe layer overlaid on the decoy website. The target website iframe is positioned within the browser so that there is a precise overlap of the target action with the decoy website using appropriate width and height position values. Absolute and relative position values are used to ensure that the target website accurately overlaps the decoy regardless of screen size, browser type and platform. The z-index determines the stacking order of the iframe and website layers. The opacity value is defined as 0.0 (or close to 0.0) so that the iframe content is transparent to the user.
+
+1. When are clickjacking attacks possible?  
+**Expected Answer**: Clickjacking attacks are possible whenever websites can be framed.
+
+1. What are frame busting scripts?  
+**Expected Answer**: Preventative techniques are based upon restricting the framing capability for websites. A common client-side protection enacted through the web browser is to use frame busting or frame breaking scripts. These can be implemented via proprietary browser JavaScript add-ons or extensions such as NoScript. Scripts are often crafted so that they perform some or all of the following behaviors:
+
+   * check and enforce that the current application window is the main or top window,
+   * make all frames visible,
+   * prevent clicking on invisible frames,
+   * intercept and flag potential clickjacking attacks to the user.
+
+1. What is an effective attacker workaround against frame busters?  
+**Expected Answer**: An effective attacker workaround against frame busters is to use the HTML5 iframe `sandbox` attribute. When this is set with the `allow-forms` or `allow-scripts` values and the `allow-top-navigation` value is omitted then the frame buster script can be neutralized as the iframe cannot check whether or not it is the top window: `<iframe id="victim_website" src="https://victim-website.com" sandbox="allow-forms"></iframe>`. Both the `allow-forms` and `allow-scripts` values permit the specified actions within the iframe but top-level navigation is disabled. This inhibits frame busting behaviors while allowing functionality within the targeted site.
+
+1. What are the key elements that make combining clickjacking with a DOM-based Cross-Site Scripting (DXSS) attack particularly effective?  
+**Expected Answer**: The combination is particularly effective because clickjacking can be used to initiate a specific action on the vulnerable application, such as clicking a button or link, which then triggers the DOM XSS exploit. The DOM XSS part of the attack executes the malicious script in the context of the victim's session, potentially stealing sensitive information, session tokens, or performing actions on behalf of the user.
+
+1. How to prevent clickjacking attacks?  
+**Expected Answer**: Clickjacking is a browser-side behavior and its success or otherwise depends upon browser functionality and conformity to prevailing web standards and best practice. Server-side protection against clickjacking is provided by defining and communicating constraints over the use of components such as iframes. However, implementation of protection depends upon browser compliance and enforcement of these constraints. Two mechanisms for server-side clickjacking protection are X-Frame-Options and Content Security Policy.
+
+1. How to prevent clickjacking attacks with X-Frame-Options?  
+**Expected Answer**: The header provides the website owner with control over the use of iframes or objects so that inclusion of a web page within a frame can be prohibited with the deny directive: `X-Frame-Options: deny`. Alternatively, framing can be restricted to the same origin as the website using the `sameorigin` directive: `X-Frame-Options: sameorigin` or to a named website using the allow-from directive: `X-Frame-Options: allow-from https://normal-website.com`. X-Frame-Options is not implemented consistently across browsers, but when properly applied in conjunction with Content Security Policy as part of a multi-layer defense strategy it can provide effective protection against clickjacking attacks.
 
 
+1. How to prevent clickjacking attacks with Content Security Policy (CSP)?  
+**Expected Answer**: The recommended clickjacking protection is to incorporate the `frame-ancestors` directive in the application's Content Security Policy. The `frame-ancestors 'none'` directive is similar in behavior to the X-Frame-Options `deny` directive. The `frame-ancestors 'self'` directive is broadly equivalent to the X-Frame-Options `sameorigin` directive. The following CSP whitelists frames to the same domain only: `Content-Security-Policy: frame-ancestors 'self';`. Alternatively, framing can be restricted to named sites: 
+`Content-Security-Policy: frame-ancestors normal-website.com;`.
