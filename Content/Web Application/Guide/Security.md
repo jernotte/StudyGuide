@@ -170,6 +170,7 @@
 21. The following code is vulnerable to SQL injection because the user input is concatenated directly into the query. Fix it.  
 22. What parts of the query does parameterized queries work, and where do they not?  
 23.  If an application places untrusted input into tables or column names, or the `ORDER BY` clause, how can this be remediated?  
+24. What is a prepared statement? 
 
 
 ### Web Security
@@ -884,5 +885,9 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
 
    * Whitelisting permitted input values.
    * Using different logic to deliver the required behavior.
+
+1. What is a prepared statement?  
+**Expected Answer**: Prepared statements separate the SQL code from the data. This separation means that user input is treated as data only and not part of the SQL command, preventing attackers from injecting malicious code. A typical prepared statement starts with defining the SQL query structure with placeholders for parameters. Each time a query is executed, the database server replaces the placeholders with the provided parameter values, ensuring these values are properly escaped and treated as data.
+
 
 
