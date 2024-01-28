@@ -147,31 +147,29 @@
 21. How to prevent XXE vulnerabilities?
 
 **SQL Injection**:
-1. 
-2. 
-3. 
-4. 
-5. 
-6. 
-7. 
-8. 
-9. 
-10. 
-11. 
-12. 
-13. 
-14. 
-15. 
-16. 
-17. 
-18. 
-19. 
-20. 
-21. 
-22. 
-23. 
-24. 
-25. 
+1. What is SQL injection (SQLi)?  
+2. How to detect SQL injection vulnerabilities? 
+3. What parts of a query can SQL injection occur? 
+4. Describe a method by which SQL injection can be used to display all items in a database of this query: `SELECT * FROM products WHERE category = 'Gifts' AND released = 1` where 'Gifts' is user input.
+5. Describe a method by which SQL injection can be used to display all items in a database, regardless of specific conditions or filters? 
+6. In cases where the application responds with the results of a SQL query, how can an attacker use a SQL injection vulnerability to retrieve data from other tables within the database?   
+7. Explain how this query works `SELECT a, b FROM table1 UNION SELECT c, d FROM table2`?  
+8. What two key requirements must be met for a `UNION` query to work?  
+9. To carry out a SQL injection UNION attack what does it normally involve finding out?  
+10. What are the two effective methods to determine the number of columns being returned from the original query in a SQL injection `UNION` attack? 
+11. How is the method involving `ORDER BY` clauses executed in a SQL injection attack to determine the number of columns?  
+12. How does the method using `UNION SELECT` payloads with `NULL` values work in identifying the number of columns in a SQL injection attack?  
+13. Why is `NULL` used as the values returned from the injected `SELECT` query?  
+14. For a SQL injection UNION attack why do you need to find one or more columns in the original query results whose data type is, or is compatible with, string data?  
+15. To exploit SQL Injection it's often necessary to find out what information about the database?  
+16. What payloads can be potentially used to identify database type and version?
+17. What query can be used to list the tables in a database?  
+18. What query can be used to list the tables in an Oracle database?  
+19. What is a first-order and second-order SQL injection?  
+20. How to prevent SQL injection?
+21. The following code is vulnerable to SQL injection because the user input is concatenated directly into the query. Fix it.  
+22. What parts of the query does parameterized queries work, and where do they not?  
+23.  If an application places untrusted input into tables or column names, or the `ORDER BY` clause, how can this be remediated?  
 
 
 ### Web Security
@@ -789,12 +787,102 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
    * In `SELECT` statements, within the table or column name.
    * In `SELECT` statements, within the `ORDER BY` clause.
 
+1. Describe a method by which SQL injection can be used to display all items in a database of this query: `SELECT * FROM products WHERE category = 'Gifts' AND released = 1` where 'Gifts' is user input.  
+**Expected Answer**: For example, an attacker might add a SQL comment (--) to the input, which comments out parts of the SQL query, thereby bypassing conditions like release status checks. In a URL, this could look like `Gifts'--`. This injection would cause the SQL query to ignore subsequent conditions, potentially revealing unreleased products or other restricted data.
 
+1. Describe a method by which SQL injection can be used to display all items in a database, regardless of specific conditions or filters?  
+**Expected Answer**: SQL injection can be used to display all items in a database by injecting a condition that is always true, thereby bypassing specific conditions or filters. An attacker could modify the input to include a universally true condition like 1=1, combined with a SQL comment to negate the rest of the query. For example, appending `'+OR+1=1--` to a query parameter would result in a SQL command like `SELECT * FROM products WHERE category = 'AnyCategory' OR 1=1--`. This modification ensures that the query ignores its intended filters and returns all items, as 1=1 is always true and the comment (--) negates any further conditions.
 
+1. In cases where the application responds with the results of a SQL query, how can an attacker use a SQL injection vulnerability to retrieve data from other tables within the database?  
+**Expected Answer**: The use the `UNION` keyword to execute an additional `SELECT` query and append the results to the original query. For example, if an application executes the following query containing the user input `Gifts`: `SELECT name, description FROM products WHERE category = 'Gifts'`. An attacker can submit the input: `' UNION SELECT username, password FROM users--`.
 
+1. Explain how this query works `SELECT a, b FROM table1 UNION SELECT c, d FROM table2`?  
+**Expected Answer**: This SQL query returns a single result set with two columns, containing values from columns a and b in table1 and columns c and d in table2.
 
+1. What two key requirements must be met for a `UNION` query to work?  
+**Expected Answer**: 
 
+   * The individual queries must return the same number of columns.
+   * The data types in each column must be compatible between the individual queries.
 
+1. To carry out a SQL injection UNION attack what does it normally involve finding out?  
+**Expected Answer**: 
 
+   * How many columns are being returned from the original query.
+   * Which columns returned from the original query are of a suitable data type to hold the results from the injected query.
+
+1. What are the two effective methods to determine the number of columns being returned from the original query in a SQL injection `UNION` attack?  
+**Expected Answer**: The two effective methods to determine the number of columns in a SQL injection `UNION` attack are:
+
+   * Using a series of `ORDER BY` clauses and incrementing the specified column index until an error occurs.
+   * Submitting a series of `UNION SELECT` payloads with varying numbers of `NULL` values.
+
+1. How is the method involving `ORDER BY` clauses executed in a SQL injection attack to determine the number of columns?  
+**Expected Answer**: This method involves injecting `ORDER BY` clauses with incrementally increasing column indexes into the query. If the injection point is a quoted string within the WHERE clause of the original query, the attacker starts with `' ORDER BY 1--` and continues to increase the number (`' ORDER BY 2--`, `' ORDER BY 3--`, etc.) until the database returns an error. This error indicates that the specified column index exceeds the number of actual columns in the result set. The point just before the error occurs gives the total number of columns. The attacker observes changes in the application's response to detect when this error occurs.
+
+1. How does the method using `UNION SELECT` payloads with `NULL` values work in identifying the number of columns in a SQL injection attack?  
+**Expected Answer**: In this method, the attacker submits a series of `UNION SELECT` payloads, each specifying a different number of NULL values (`' UNION SELECT NULL--`, `' UNION SELECT NULL, NULL--`, etc.). The number of NULL values must match the number of columns in the original query for the `UNION` to be successful. If the number of NULLs doesn’t match, the database returns an error. When the correct number of NULLs is used, it results in an additional row being returned in the result set, with NULL values in each column. The attacker looks for changes in the application's response, such as additional content or different errors, to identify when the correct number of columns has been matched.
+
+1. Why is `NULL` used as the values returned from the injected `SELECT` query?  
+**Expected Answer**: Because the data types in each column must be compatible between the original and the injected queries. NULL is convertible to every common data type, so it maximizes the chance that the payload will succeed when the column count is correct.
+
+1. For a SQL injection UNION attack why do you need to find one or more columns in the original query results whose data type is, or is compatible with, string data?  
+**Expected Answer**: The interesting data that you want to retrieve is normally in string form. After you determine the number of required columns, you can probe each column to test whether it can hold string data. You can submit a series of `UNION SELECT` payloads that place a string value into each column in turn. For example, if the query returns four columns, you would submit:
+
+   ```sql
+   ' UNION SELECT 'a',NULL,NULL,NULL--
+   ' UNION SELECT NULL,'a',NULL,NULL--
+   ' UNION SELECT NULL,NULL,'a',NULL--
+   ```
+   If the column data type is not compatible with string data, the injected query will cause a database error, such as: Conversion failed when converting the varchar value 'a' to data type int. If an error does not occur, and the application's response contains some additional content including the injected string value, then the relevant column is suitable for retrieving string data.
+
+1. To exploit SQL Injection it's often necessary to find out what information about the database?  
+**Expected Answer**: 
+
+   * The type and version of the database software.
+   * The tables and columns that the database contains.
+
+1. What payloads can be potentially used to identify database type and version?  
+**Expected Answer**: 
+
+   | Database type | Query |
+   | ----------- | ----------- |
+   | Microsoft, MySQL      | SELECT @@version       |
+   | Oracle   | SELECT * FROM v$version       |  
+   | PostgreSQL   | SELECT version()        |  
+
+1. What query can be used to list the tables in a database?  
+**Expected Answer**: You can query information_schema.tables to list the tables in the database: `SELECT * FROM information_schema.tables`
+
+1. What query can be used to list the tables in an Oracle database?  
+**Expected Answer**: You can list tables by querying all_tables: `SELECT * FROM all_tables`
+
+1. What is a first-order and second-order SQL injection?  
+**Expected Answer**: First-order SQL injection occurs when the application processes user input from an HTTP request and incorporates the input into a SQL query in an unsafe way. Second-order SQL injection occurs when the application takes user input from an HTTP request and stores it for future use. This is usually done by placing the input into a database, but no vulnerability occurs at the point where the data is stored. Later, when handling a different HTTP request, the application retrieves the stored data and incorporates it into a SQL query in an unsafe way. For this reason, second-order SQL injection is also known as stored SQL injection.
+
+1. How to prevent SQL injection?  
+**Expected Answer**: Prevent most instances of SQL injection using parameterized queries (aka prepared statements) instead of string concatenation within the query. 
+
+1. The following code is vulnerable to SQL injection because the user input is concatenated directly into the query. Fix it.  
+   ```sql
+   String query = "SELECT * FROM products WHERE category = '"+ input + "'";
+   Statement statement = connection.createStatement();
+   ResultSet resultSet = statement.executeQuery(query);
+   ```
+   **Expected Answer**: 
+   ```sql
+   PreparedStatement statement = connection.prepareStatement("SELECT * FROM products WHERE category = ?");
+   statement.setString(1, input);
+   ResultSet resultSet = statement.executeQuery();
+   ```
+
+1. What parts of the query does parameterized queries work, and where do they not?  
+**Expected Answer**: You can use parameterized queries for any situation where untrusted input appears as data within the query, including the `WHERE` clause and values in an `INSERT` or `UPDATE` statement. They can't be used to handle untrusted input in other parts of the query, such as table or column names, or the `ORDER BY` clause. 
+
+1. If an application places untrusted input into tables or column names, or the `ORDER BY` clause, how can this be remediated?  
+**Expected Answer**: Application functionality that places untrusted data into these parts of the query needs to take a different approach, such as:
+
+   * Whitelisting permitted input values.
+   * Using different logic to deliver the required behavior.
 
 
