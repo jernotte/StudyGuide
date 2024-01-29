@@ -203,6 +203,14 @@
 17. What is HTTP/2 downgrading?
 18. How to prevent HTTP request smuggling vulnerabilities? 
 
+**Server-Side Template Injection**:
+1. What is server-side template injection?
+2. What is the impact of server-side template injection?
+3. How do server-side template injection vulnerabilities arise?
+4. How do detect server-side template injection vulnerabilities?
+5. What are the two distinct contexts in server-side template injection vulnerabilities?
+6. How to prevent server-side template injection vulnerabilities?
+
 
 ### Web Security
 
@@ -1068,4 +1076,35 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
    * Never assume that requests won't have a body. This is the fundamental cause of both CL.0 and client-side desync vulnerabilities.
    * Default to discarding the connection if server-level exceptions are triggered when handling requests.
    * If you route traffic through a forward proxy, ensure that upstream HTTP/2 is enabled if possible.
+
+#### Server-Side Template Injection
+
+1. What is server-side template injection?  
+**Expected Answer**: Server-side template injection is when an attacker is able to use native template syntax to inject a malicious payload into a template, which is then executed server-side. Template engines are designed to generate web pages by combining fixed templates with volatile data. Server-side template injection attacks can occur when user input is concatenated directly into a template, rather than passed in as data. This allows attackers to inject arbitrary template directives in order to manipulate the template engine, often enabling them to take complete control of the server. As the name suggests, server-side template injection payloads are delivered and evaluated server-side, potentially making them much more dangerous than a typical client-side template injection.
+
+1. What is the impact of server-side template injection?  
+**Expected Answer**: Server-side template injection vulnerabilities can expose websites to a variety of attacks depending on the template engine in question and how exactly the application uses it. In certain rare circumstances, these vulnerabilities pose no real security risk. However, most of the time, the impact of server-side template injection can be catastrophic. At the severe end of the scale, an attacker can potentially achieve remote code execution, taking full control of the back-end server and using it to perform other attacks on internal infrastructure. Even in cases where full remote code execution is not possible, an attacker can often still use server-side template injection as the basis for numerous other attacks, potentially gaining read access to sensitive data and arbitrary files on the server.
+
+1. How do server-side template injection vulnerabilities arise?  
+**Expected Answer**: Server-side template injection vulnerabilities arise when user input is concatenated into templates rather than being passed in as data. Static templates that simply provide placeholders into which dynamic content is rendered are generally not vulnerable to server-side template injection. However, as templates are simply strings, web developers sometimes directly concatenate user input into templates prior to rendering. For example: `$output = $twig->render("Dear " . $_GET['name']);`. Instead of a static value being passed into the template, part of the template itself is being dynamically generated using the `GET` parameter `name`. As template syntax is evaluated server-side, this potentially allows an attacker to place a server-side template injection payload inside the `name` parameter.
+
+1. How do detect server-side template injection vulnerabilities?  
+**Expected Answer**: The simplest initial approach is to try fuzzing the template by injecting a sequence of special characters commonly used in template expressions, such as `${{<%[%'"}}%\`. If an exception is raised, this indicates that the injected template syntax is potentially being interpreted by the server in some way. Server-side template injection vulnerabilities occur in two distinct contexts, each of which requires its own detection method. 
+
+1. What are the two distinct contexts in server-side template injection vulnerabilities?  
+**Expected Answer**: 
+
+   * Plaintext context: Most template languages allow you to freely input content either by using HTML tags directly or by using the template's native syntax, which will be rendered to HTML on the back-end before the HTTP response is sent. This can sometimes be exploited for XSS and is in fact often mistaken for a simple XSS vulnerability. However, by setting mathematical operations as the value of the parameter, we can test whether this is also a potential entry point for a server-side template injection attack. During auditing, we might test for server-side template injection by requesting a URL such as: `http://vulnerable-website.com/?username=${7*7}`. If the resulting output contains `Hello 49`, this shows that the mathematical operation is being evaluated server-side.
+   * Code context: User input being placed within a template expression. This may take the form of a user-controllable variable name being placed inside a parameter. One method of testing for server-side template injection in this context is to first establish that the parameter doesn't contain a direct XSS vulnerability by injecting arbitrary HTML into the value. In the absence of XSS, the next step is to try and break out of the statement using common templating syntax and attempt to inject arbitrary HTML after it: `http://vulnerable-website.com/?greeting=data.username}}<tag>`.
+
+1. How to prevent server-side template injection vulnerabilities?  
+**Expected Answer**: The best way to prevent server-side template injection is to not allow any users to modify or submit new templates. However, this is sometimes unavoidable due to business requirements. One of the simplest ways to avoid introducing server-side template injection vulnerabilities is to always use a "logic-less" template engine, such as Mustache, unless absolutely necessary. Separating the logic from presentation as much as possible can greatly reduce your exposure to the most dangerous template-based attacks. Finally, another complementary approach is to accept that arbitrary code execution is all but inevitable and apply your own sandboxing by deploying your template environment in a locked-down Docker container.
+
+
+
+
+
+
+
+
 
