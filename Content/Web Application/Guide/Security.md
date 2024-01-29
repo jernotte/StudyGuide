@@ -183,6 +183,26 @@
 8. How to prevent clickjacking attacks with X-Frame-Options?
 9. How to prevent clickjacking attacks with Content Security Policy (CSP)? 
 
+**HTTP Request Smuggling**:
+1. What is HTTP request smuggling?
+2. What happens in an HTTP request smuggling attack?
+3. How do HTTP request smuggling vulnerabilities arise?
+4. What is an example of a HTTP request smuggling vulnerabilities with Transfer-Encoding? 
+5. What are the two methods provided by the HTTP/1 specification for specifying the length of HTTP messages, and what conflict arises when they are used together?
+6. Why might the HTTP specification's rule to ignore the Content-Length header in the presence of Transfer-Encoding not be sufficient in a multi-server environment?
+7. What are the two main reasons why inconsistencies in handling Transfer-Encoding headers can lead to request smuggling vulnerabilities?
+8. How can differing server behaviors regarding Transfer-Encoding headers result in request smuggling vulnerabilities?
+9. Are websites that use HTTP/2 end-to-end inherently immune to request smuggling attacks?
+10. How to perform an HTTP request smuggling attack?
+11. Explain CL.TE vulnerabilities?
+12. Explain TE.CL vulnerabilities?
+13. Explain TE.TE vulnerabilities?
+14. What is the most generally effective way to detect HTTP request smuggling vulnerabilities?
+15. How to confirm HTTP request smuggling vulnerabilities?
+16. What can exploiting HTTP request smuggling vulnerabilities lead to?
+17. What is HTTP/2 downgrading?
+18. How to prevent HTTP request smuggling vulnerabilities? 
+
 
 ### Web Security
 
@@ -935,3 +955,117 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
 1. How to prevent clickjacking attacks with Content Security Policy (CSP)?  
 **Expected Answer**: The recommended clickjacking protection is to incorporate the `frame-ancestors` directive in the application's Content Security Policy. The `frame-ancestors 'none'` directive is similar in behavior to the X-Frame-Options `deny` directive. The `frame-ancestors 'self'` directive is broadly equivalent to the X-Frame-Options `sameorigin` directive. The following CSP whitelists frames to the same domain only: `Content-Security-Policy: frame-ancestors 'self';`. Alternatively, framing can be restricted to named sites: 
 `Content-Security-Policy: frame-ancestors normal-website.com;`.
+
+#### HTTP Request Smuggling
+
+1. What is HTTP request smuggling?  
+**Expected Answer**: HTTP request smuggling is a technique for interfering with the way a web site processes sequences of HTTP requests that are received from one or more users. Request smuggling vulnerabilities are often critical in nature, allowing an attacker to bypass security controls, gain unauthorized access to sensitive data, and directly compromise other application users. Request smuggling is primarily associated with HTTP/1 requests. However, websites that support HTTP/2 may be vulnerable, depending on their back-end architecture.
+
+1. What happens in an HTTP request smuggling attack?  
+**Expected Answer**: Web applications frequently employ chains of HTTP servers between users and the ultimate application logic. Users send requests to a front-end server (sometimes called a load balancer or reverse proxy) and this server forwards requests to one or more back-end servers. When the front-end server forwards HTTP requests to a back-end server, it typically sends several requests over the same back-end network connection, because this is much more efficient and performant. The protocol is very simple; HTTP requests are sent one after another, and the receiving server has to determine where one request ends and the next one begin. In this situation, it is crucial that the front-end and back-end systems agree about the boundaries between requests. Otherwise, an attacker might be able to send an ambiguous request that gets interpreted differently by the front-end and back-end systems. The attacker causes part of their front-end request to be interpreted by the back-end server as the start of the next request. It is effectively prepended to the next request, and so can interfere with the way the application processes that request. 
+
+1. How do HTTP request smuggling vulnerabilities arise?  
+**Expected Answer**: Most HTTP request smuggling vulnerabilities arise because the HTTP/1 specification provides two different ways to specify where a request ends: the `Content-Length` header and the `Transfer-Encoding` header. The `Content-Length` header specifies the length of the message body in bytes. The `Transfer-Encoding` header can be used to specify that the message body uses chunked encoding. This means that the message body contains one or more chunks of data. Each chunk consists of the chunk size in bytes (expressed in hexadecimal), followed by a newline, followed by the chunk contents. The message is terminated with a chunk of size zero. 
+
+1. What is an example of a HTTP request smuggling vulnerabilities with Transfer-Encoding?  
+**Expected Answer**: 
+
+   ```http
+   POST /search HTTP/1.1
+   Host: normal-website.com
+   Content-Type: application/x-www-form-urlencoded
+   Transfer-Encoding: chunked
+
+   b
+   q=smuggling
+   0
+   ```
+
+1. What are the two methods provided by the HTTP/1 specification for specifying the length of HTTP messages, and what conflict arises when they are used together?  
+**Expected Answer**: The HTTP/1 specification provides two methods for specifying the length of HTTP messages: the Content-Length header and the Transfer-Encoding header. A conflict arises when both headers are used together in a single message, as they can provide conflicting information about the message length. The specification states that if both headers are present, the Content-Length header should be ignored. However, this can lead to ambiguities, particularly in the context of multiple servers processing the same request.
+
+1. Why might the HTTP specification's rule to ignore the Content-Length header in the presence of Transfer-Encoding not be sufficient in a multi-server environment?  
+**Expected Answer**: In a multi-server environment, where multiple servers are chained together, such as with front-end and back-end servers different servers might interpret or process these headers inconsistently. If the front-end and back-end servers behave differently in relation to the (possibly obfuscated) Transfer-Encoding header, then they might disagree about the boundaries between successive requests, leading to request smuggling vulnerabilities.
+
+1. What are the two main reasons why inconsistencies in handling Transfer-Encoding headers can lead to request smuggling vulnerabilities?  
+**Expected Answer**: 
+
+   * Lack of Support for Transfer-Encoding: Some servers might not support the Transfer-Encoding header in requests, leading to different interpretations of the request's length and boundaries.
+   * Failure to Process Obfuscated Transfer-Encoding Headers: Some servers that do support the Transfer-Encoding header can be induced not to process it if the header is obfuscated, such as through extra whitespace or unusual casing. This can also lead to discrepancies in how different servers interpret the same request.
+
+1. How can differing server behaviors regarding Transfer-Encoding headers result in request smuggling vulnerabilities?  
+**Expected Answer**: If front-end and back-end servers behave differently in relation to the (possibly obfuscated) Transfer-Encoding header, they might disagree about the boundaries between successive requests. This disagreement can lead to request smuggling vulnerabilities, where part of a request is interpreted as a separate, subsequent request by one server but not the other. Such vulnerabilities can be exploited to inject or smuggle malicious requests, bypassing security controls or attacking other application users.
+
+1. Are websites that use HTTP/2 end-to-end inherently immune to request smuggling attacks?  
+**Expected Answer**: Yes. As the HTTP/2 specification introduces a single, robust mechanism for specifying the length of a request, there is no way for an attacker to introduce the required ambiguity. However, many websites have an HTTP/2-speaking front-end server, but deploy this in front of back-end infrastructure that only supports HTTP/1. This means that the front-end effectively has to translate the requests it receives into HTTP/1. This process is known as HTTP downgrading.
+
+1. How to perform an HTTP request smuggling attack?  
+**Expected Answer**: Classic request smuggling attacks involve placing both the Content-Length header and the Transfer-Encoding header into a single HTTP/1 request and manipulating these so that the front-end and back-end servers process the request differently. The exact way in which this is done depends on the behavior of the two servers:
+
+   * CL.TE: the front-end server uses the Content-Length header and the back-end server uses the Transfer-Encoding header.
+   * TE.CL: the front-end server uses the Transfer-Encoding header and the back-end server uses the Content-Length header.
+   * TE.TE: the front-end and back-end servers both support the Transfer-Encoding header, but one of the servers can be induced not to process it by obfuscating the header in some way.
+
+1. Explain CL.TE vulnerabilities?  
+   ```http
+   POST / HTTP/1.1
+   Host: vulnerable-website.com
+   Content-Length: 13
+   Transfer-Encoding: chunked
+
+   0
+
+   SMUGGLED
+   ```
+   **Expected Answer**: The front-end server processes the `Content-Length` header and determines that the request body is 13 bytes long, up to the end of `SMUGGLED`. This request is forwarded on to the back-end server. The back-end server processes the `Transfer-Encoding` header, and so treats the message body as using chunked encoding. It processes the first chunk, which is stated to be zero length, and so is treated as terminating the request. The following bytes, `SMUGGLED`, are left unprocessed, and the back-end server will treat these as being the start of the next request in the sequence.
+
+1. Explain TE.CL vulnerabilities?  
+   ```http
+   POST / HTTP/1.1
+   Host: vulnerable-website.com
+   Content-Length: 3
+   Transfer-Encoding: chunked
+
+   8
+   SMUGGLED
+   0
+   ```
+   **Expected Answer**: The front-end server uses the `Transfer-Encoding` header and the back-end server uses the `Content-Length` header. The front-end server processes the `Transfer-Encoding` header, and so treats the message body as using chunked encoding. It processes the first chunk, which is stated to be 8 bytes long, up to the start of the line following `SMUGGLED`. It processes the second chunk, which is stated to be zero length, and so is treated as terminating the request. This request is forwarded on to the back-end server. The back-end server processes the `Content-Length` header and determines that the request body is 3 bytes long, up to the start of the line following `8`. The following bytes, starting with `SMUGGLED`, are left unprocessed, and the back-end server will treat these as being the start of the next request in the sequence.
+
+1. Explain TE.TE vulnerabilities?  
+**Expected Answer**: The front-end and back-end servers both support the Transfer-Encoding header, but one of the servers can be induced not to process it by obfuscating the header in some way. There are potentially endless ways to obfuscate the Transfer-Encoding header. To uncover a TE.TE vulnerability, it is necessary to find some variation of the Transfer-Encoding header such that only one of the front-end or back-end servers processes it, while the other server ignores it. Depending on whether it is the front-end or the back-end server that can be induced not to process the obfuscated Transfer-Encoding header, the remainder of the attack will take the same form as for the CL.TE or TE.CL vulnerabilities already described.
+
+1. What is the most generally effective way to detect HTTP request smuggling vulnerabilities?  
+**Expected Answer**: The most generally effective way to detect HTTP request smuggling vulnerabilities is to send requests that will cause a time delay in the application's responses if a vulnerability is present. 
+
+1. How to confirm HTTP request smuggling vulnerabilities?  
+**Expected Answer**: When a probable request smuggling vulnerability has been detected, you can obtain further evidence for the vulnerability by exploiting it to trigger differences in the contents of the application's responses. This involves sending two requests to the application in quick succession:
+
+   * An "attack" request that is designed to interfere with the processing of the next request.
+   * A "normal" request.
+
+   This means essentially adding in a `GET /404 HTTP/1.1` request that will trigger on the follow-up request giving an indication in the response of the vulnerability.
+
+1. What can exploiting HTTP request smuggling vulnerabilities lead to?  
+**Expected Answer**: 
+
+   * Using HTTP request smuggling to bypass front-end security controls
+   * Revealing front-end request rewriting
+   * Bypassing client authentication
+   * Capturing other users' requests
+   * Exploit reflected XSS
+   * Turn an on-site redirect into an open redirect
+   * Web cache poisoning and deception
+
+1. What is HTTP/2 downgrading?  
+**Expected Answer**: As HTTP/2 is still relatively new, web servers that support it often still have to communicate with legacy back-end infrastructure that only speaks HTTP/1. As a result, it has become common practice for front-end servers rewrite each incoming HTTP/2 request using HTTP/1 syntax, effectively generating its HTTP/1 equivalent. This "downgraded" request is then forwarded to the relevant back-end server instead.
+
+1. How to prevent HTTP request smuggling vulnerabilities?  
+**Expected Answer**: 
+
+   * Use HTTP/2 end to end and disable HTTP downgrading if possible. HTTP/2 uses a robust mechanism for determining the length of requests and, when used end to end, is inherently protected against request smuggling. If you can't avoid HTTP downgrading, make sure you validate the rewritten request against the HTTP/1.1 specification. For example, reject requests that contain newlines in the headers, colons in header names, and spaces in the request method.
+   * Make the front-end server normalize ambiguous requests and make the back-end server reject any that are still ambiguous, closing the TCP connection in the process.
+   * Never assume that requests won't have a body. This is the fundamental cause of both CL.0 and client-side desync vulnerabilities.
+   * Default to discarding the connection if server-level exceptions are triggered when handling requests.
+   * If you route traffic through a forward proxy, ensure that upstream HTTP/2 is enabled if possible.
+
