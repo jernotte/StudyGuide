@@ -211,6 +211,25 @@
 5. What are the two distinct contexts in server-side template injection vulnerabilities?
 6. How to prevent server-side template injection vulnerabilities?
 
+**Insecure Deserialization**:
+1. What is serialization?
+2. What is deserialization?
+3. What is insecure deserialization?
+4. At what stage during the deserialization do most attacks occur?
+5. How do insecure deserialization vulnerabilities arise?
+6. What is the impact of insecure deserialization?
+7. How to prevent insecure deserialization vulnerabilities?
+8. How to identify insecure deserialization?
+9. How to identify Java serialization format?
+10. What are the two main ways to manipulate serialized objects?
+11. What does it mean to modify an object's attributes when tampering with serialized data?
+12. What does it mean to modify data types when tampering with serialized data?
+13. What are magic methods?
+14. What are gadget chains?
+15. What is a tool for working with pre-built gadget chains in Java? 
+16. What are two common Java gadget chain used to detect insecure deserialization?  
+17. To create your own gadget chain exploit what do you normally need?
+18. Even if gadget chains are not usable to exploit deserialization, what else could be looked for?  
 
 ### Web Security
 
@@ -1099,6 +1118,68 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
 
 1. How to prevent server-side template injection vulnerabilities?  
 **Expected Answer**: The best way to prevent server-side template injection is to not allow any users to modify or submit new templates. However, this is sometimes unavoidable due to business requirements. One of the simplest ways to avoid introducing server-side template injection vulnerabilities is to always use a "logic-less" template engine, such as Mustache, unless absolutely necessary. Separating the logic from presentation as much as possible can greatly reduce your exposure to the most dangerous template-based attacks. Finally, another complementary approach is to accept that arbitrary code execution is all but inevitable and apply your own sandboxing by deploying your template environment in a locked-down Docker container.
+
+#### Insecure Deserialization
+
+1. What is serialization?  
+**Expected Answer**: Serialization is the process of converting complex data structures, such as objects and their fields, into a "flatter" format that can be sent and received as a sequential stream of bytes. Serializing data makes it much simpler to:
+
+   * Write complex data to inter-process memory, a file, or a database
+   * Send complex data, for example, over a network, between different components of an application, or in an API call
+
+1. What is deserialization?  
+**Expected Answer**: Deserialization is the process of restoring the serialized byte stream to a fully functional replica of the original object, in the exact state as when it was serialized.  
+
+1. What is insecure deserialization?  
+**Expected Answer**: Insecure deserialization is when user-controllable data is deserialized by a website. This potentially enables an attacker to manipulate serialized objects in order to pass harmful data into the application code. It is even possible to replace a serialized object with an object of an entirely different class. Alarmingly, objects of any class that is available to the website will be deserialized and instantiated, regardless of which class was expected. For this reason, insecure deserialization is sometimes known as an "object injection" vulnerability.
+
+1. At what stage during the deserialization do most attacks occur?  
+**Expected Answer**: An object of an unexpected class might cause an exception. By this time, however, the damage may already be done. Many deserialization-based attacks are completed before deserialization is finished. This means that the deserialization process itself can initiate an attack, even if the website's own functionality does not directly interact with the malicious object. For this reason, websites whose logic is based on strongly typed languages can also be vulnerable to these techniques.
+
+1. How do insecure deserialization vulnerabilities arise?  
+**Expected Answer**: Insecure deserialization typically arises because there is a general lack of understanding of how dangerous deserializing user-controllable data can be. Ideally, user input should never be deserialized at all. However, sometimes website owners think they are safe because they implement some form of additional check on the deserialized data. This approach is often ineffective because it is virtually impossible to implement validation or sanitization to account for every eventuality. These checks are also fundamentally flawed as they rely on checking the data after it has been deserialized, which in many cases will be too late to prevent the attack. Deserialization-based attacks are also made possible due to the number of dependencies that exist in modern websites. A typical site might implement many different libraries, which each have their own dependencies as well. This creates a massive pool of classes and methods that is difficult to manage securely. As an attacker can create instances of any of these classes, it is hard to predict which methods can be invoked on the malicious data. 
+
+1. What is the impact of insecure deserialization?  
+**Expected Answer**: The impact of insecure deserialization can be very severe because it provides an entry point to a massively increased attack surface. It allows an attacker to reuse existing application code in harmful ways, resulting in numerous other vulnerabilities, often remote code execution. Even in cases where remote code execution is not possible, insecure deserialization can lead to privilege escalation, arbitrary file access, and denial-of-service attacks.
+
+1. How to prevent insecure deserialization vulnerabilities?  
+**Expected Answer**: Deserialization of user input should be avoided unless absolutely necessary. If you do need to deserialize data from untrusted sources, incorporate robust measures to make sure that the data has not been tampered with. For example, you could implement a digital signature to check the integrity of the data. However, remember that any checks must take place before beginning the deserialization process. Otherwise, they are of little use. remember that the vulnerability is the deserialization of user input, not the presence of gadget chains that subsequently handle the data. Don't rely on trying to eliminate gadget chains that you identify during testing. It is impractical to try and plug them all due to the web of cross-library dependencies that almost certainly exist on your website. At any given time, publicly documented memory corruption exploits are also a factor, meaning that your application may be vulnerable regardless.
+
+1. How to identify insecure deserialization?  
+**Expected Answer**: Look at all data being passed into the website and try to identify anything that looks like serialized data. Serialized data can be identified relatively easily if you know the format that different languages use.
+
+1. How to identify Java serialization format?  
+**Expected Answer**: Java uses binary serialization formats. This is more difficult to read, but you can still identify serialized data if you know how to recognize a few tell-tale signs. For example, serialized Java objects always begin with the same bytes, which are encoded as `ac ed` in hexadecimal and `rO0` in Base64. Any class that implements the interface `java.io.Serializable` can be serialized and deserialized. If you have source code access, take note of any code that uses the `readObject()` method, which is used to read and deserialize data from an `InputStream`.
+
+1. What are the two main ways to manipulate serialized objects?  
+**Expected Answer**: You can either edit the object directly in its byte stream form, or you can write a short script in the corresponding language to create and serialize the new object yourself. The latter approach is often easier when working with binary serialization formats.
+
+1. What does it mean to modify an object's attributes when tampering with serialized data?  
+**Expected Answer**: If an attacker spotted this serialized object in an HTTP request, they might decode it to find the following byte stream: `O:4:"User":2:{s:8:"username";s:6:"carlos";s:7:"isAdmin";b:0;}`. The `isAdmin` attribute is an obvious point of interest. An attacker could simply change the boolean value of the attribute to `1` (true), re-encode the object, and overwrite their current cookie with this modified value. 
+
+1. What does it mean to modify data types when tampering with serialized data?  
+**Expected Answer**: It's also possible to supply unexpected data types. PHP-based logic is particularly vulnerable to this kind of manipulation due to the behavior of its loose comparison operator (==) when comparing different data types. For example, if you perform a loose comparison between an integer and a string, PHP will attempt to convert the string to an integer, meaning that `5 == "5"` evaluates to `true`. 
+
+1. What are magic methods?  
+**Expected Answer**: Magic methods are a special subset of methods that you do not have to explicitly invoke. Instead, they are invoked automatically whenever a particular event or scenario occurs. Magic methods are a common feature of object-oriented programming in various languages. They are sometimes indicated by prefixing or surrounding the method name with double-underscores. Exactly when and why a magic method is invoked differs from method to method. One of the most common examples in Python is `__init__`. Magic methods are widely used and do not represent a vulnerability on their own. But they can become dangerous when the code that they execute handles attacker-controllable data, for example, from a deserialized object. This can be exploited by an attacker to automatically invoke methods on the deserialized data when the corresponding conditions are met.
+
+1. What are gadget chains?  
+**Expected Answer**: A "gadget" is a snippet of code that exists in the application that can help an attacker to achieve a particular goal. An individual gadget may not directly do anything harmful with user input. However, the attacker's goal might simply be to invoke a method that will pass their input into another gadget. By chaining multiple gadgets together in this way, an attacker can potentially pass their input into a dangerous "sink gadget", where it can cause maximum damage.
+
+1. What is a tool for working with pre-built gadget chains in Java?  
+**Expected Answer**: ysoserial, lets you choose one of the provided gadget chains for a library that you think the target application is using, then pass in a command that you want to execute. It then creates an appropriate serialized object based on the selected chain. This still involves a certain amount of trial and error, but it is considerably less labor-intensive than constructing your own gadget chains manually.
+
+1. What are two common Java gadget chain used to detect insecure deserialization?  
+**Expected Answer**: 
+
+   * The `URLDNS` chain triggers a DNS lookup for a supplied URL. Most importantly, it does not rely on the target application using a specific vulnerable library and works in any known Java version. This makes it the most universal gadget chain for detection purposes. If you spot a serialized object in the traffic, you can try using this gadget chain to generate an object that triggers a DNS interaction with the Burp Collaborator server. If it does, you can be sure that deserialization occurred on your target.
+   * `JRMPClient` is another universal chain that you can use for initial detection. It causes the server to try establishing a TCP connection to the supplied IP address. Note that you need to provide a raw IP address rather than a hostname. This chain may be useful in environments where all outbound traffic is firewalled, including DNS lookups. You can try generating payloads with two different IP addresses: a local one and a firewalled, external one. If the application responds immediately for a payload with a local address, but hangs for a payload with an external address, causing a delay in the response, this indicates that the gadget chain worked because the server tried to connect to the firewalled address. In this case, the subtle time difference in responses can help you to detect whether deserialization occurs on the server, even in blind cases.
+
+1. To create your own gadget chain exploit what do you normally need?  
+**Expected Answer**: To successfully build your own gadget chain, you will almost certainly need source code access. The first step is to study this source code to identify a class that contains a magic method that is invoked during deserialization. Assess the code that this magic method executes to see if it directly does anything dangerous with user-controllable attributes. This is always worth checking just in case. If the magic method is not exploitable on its own, it can serve as your "kick-off gadget" for a gadget chain. Study any methods that the kick-off gadget invokes. Do any of these do something dangerous with data that you control? If not, take a closer look at each of the methods that they subsequently invoke, and so on.
+
+1. Even if gadget chains are not usable to exploit deserialization, what else could be looked for?  
+**Expected Answer**: There are often publicly documented memory corruption vulnerabilities that can be exploited via insecure deserialization. These typically lead to remote code execution. These memory corruption vulnerabilities are not always considered a vulnerability in its own right because these methods are not intended to handle user-controllable input in the first place.
 
 
 
