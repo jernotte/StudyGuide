@@ -231,6 +231,16 @@
 17. To create your own gadget chain exploit what do you normally need?
 18. Even if gadget chains are not usable to exploit deserialization, what else could be looked for?  
 
+**Access Control Vulnerabilities And Privilege Escalation**:
+1. What are vertical access controls?
+2. What are horizontal access controls?
+3. What are context-dependent access controls?
+4. What are insecure direct object references (IDOR)?
+5. What are some common direct references that lead to IDOR vulns?
+6. How to prevent access control vulnerabilities?
+
+
+
 ### Web Security
 
 Content will be separated by attack types.
@@ -1181,11 +1191,33 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
 1. Even if gadget chains are not usable to exploit deserialization, what else could be looked for?  
 **Expected Answer**: There are often publicly documented memory corruption vulnerabilities that can be exploited via insecure deserialization. These typically lead to remote code execution. These memory corruption vulnerabilities are not always considered a vulnerability in its own right because these methods are not intended to handle user-controllable input in the first place.
 
+#### Access Control Vulnerabilities And Privilege Escalation
 
+1. What are vertical access controls?  
+**Expected Answer**: Vertical access controls are mechanisms that restrict access to sensitive functionality to specific types of users. If a user can gain access to functionality that they are not permitted to access then this is vertical privilege escalation. For example, if a non-administrative user can gain access to an admin page where they can delete user accounts, then this is vertical privilege escalation.
 
+1. What are horizontal access controls?  
+**Expected Answer**: Horizontal access controls are mechanisms that restrict access to resources to specific users. Horizontal privilege escalation occurs if a user is able to gain access to resources belonging to another user, instead of their own resources of that type. For example, if an employee can access the records of other employees as well as their own, then this is horizontal privilege escalation. This is an example of an insecure direct object reference (IDOR) vulnerability.
 
+1. What are context-dependent access controls?  
+**Expected Answer**: Context-dependent access controls restrict access to functionality and resources based upon the state of the application or the user's interaction with it. Context-dependent access controls prevent a user performing actions in the wrong order. For example, a retail website might prevent users from modifying the contents of their shopping cart after they have made payment.
 
+1. What are insecure direct object references (IDOR)?  
+**Expected Answer**: Insecure direct object references (IDOR) are a type of access control vulnerability that arises when an application uses user-supplied input to access objects directly. IDOR vulnerabilities are most commonly associated with horizontal privilege escalation, but they can also arise in relation to vertical privilege escalation.
 
+1. What are some common direct references that lead to IDOR vulns?  
+**Expected Answer**: 
+
+   * IDOR vulnerability with direct reference to database objects
+   * IDOR vulnerability with direct reference to static files
+
+1. How to prevent access control vulnerabilities?  
+**Expected Answer**: Access control vulnerabilities can be prevented by taking a defense-in-depth approach and applying the following principles:
+
+   * Never rely on obfuscation alone for access control.
+   * Unless a resource is intended to be publicly accessible, deny access by default.
+   * Wherever possible, use a single application-wide mechanism for enforcing access controls.
+   * At the code level, make it mandatory for developers to declare the access that is allowed for each resource, and deny access by default.
 
 
 
