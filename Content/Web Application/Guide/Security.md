@@ -239,6 +239,13 @@
 5. What are some common direct references that lead to IDOR vulns?
 6. How to prevent access control vulnerabilities?
 
+**Authentication**:
+1. What is authentication?
+2. What are the three main types of authentication?
+3. What are some common attacks on weak MFA?
+4. How to secure your authentication mechanisms?
+
+**OAuth2**:
 
 
 ### Web Security
@@ -1219,5 +1226,53 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
    * Wherever possible, use a single application-wide mechanism for enforcing access controls.
    * At the code level, make it mandatory for developers to declare the access that is allowed for each resource, and deny access by default.
 
+#### Authentication
 
+1. What is authentication?  
+**Expected Answer**: Authentication is the process of verifying the identity of a user or client.
+
+1. What are the three main types of authentication?  
+**Expected Answer**: 
+
+   * Something you know, such as a password or the answer to a security question. These are sometimes called "knowledge factors".
+   * Something you have, This is a physical object such as a mobile phone or security token. These are sometimes called "possession factors".
+   * Something you are or do. For example, your biometrics or patterns of behavior. These are sometimes called "inherence factors".
+
+1. What are some common attacks on weak MFA?  
+**Expected Answer**:
+
+   * Brute-forcing 2FA verification codes
+   * Bypassing two-factor authentication as it doesn't validate that step and you can just load protected pages / resources
+   * Not validating the code matches the user, meaning you can generate the 2FA token with your account and use it with someone elses
+
+1. How to secure your authentication mechanisms?  
+**Expected Answer**:
+
+   * Prevent username enumeration
+   * Implement robust brute-force protection
+   * Implement proper multi-factor authentication
+
+#### OAuth2
+
+1. What is OAuth?  
+**Expected Answer**: OAuth is a commonly used authorization framework that enables websites and web applications to request limited access to a user's account on another application. OAuth allows the user to grant this access without exposing their login credentials to the requesting application. This means users can fine-tune which data they want to share rather than having to hand over full control of their account to a third party. It is widely used to integrate third-party functionality that requires access to certain data from a user's account.
+
+1. How does OAuth 2.0 work?  
+**Expected Answer**: OAuth 2.0 was originally developed as a way of sharing access to specific data between applications. It works by defining a series of interactions between three distinct parties, namely a client application, a resource owner, and the OAuth service provider.
+
+   * Client application - The website or web application that wants to access the user's data.
+   * Resource owner - The user whose data the client application wants to access.
+   * OAuth service provider - The website or application that controls the user's data and access to it. They support OAuth by providing an API for interacting with both an authorization server and a resource server.
+
+1. What is an OAuth grant type?  
+**Expected Answer**: The OAuth grant type determines the exact sequence of steps that are involved in the OAuth process. The grant type also affects how the client application communicates with the OAuth service at each stage, including how the access token itself is sent. For this reason, grant types are often referred to as "OAuth flows". An OAuth service must be configured to support a particular grant type before a client application can initiate the corresponding flow. The client application specifies which grant type it wants to use in the initial authorization request it sends to the OAuth service.
+
+1. What are the main OAuth grant type?  
+**Expected Answer**: 
+
+   * authorization code
+   * implicit
+
+1. What is authorization code grant type?  
+**Expected Answer**: 
 
