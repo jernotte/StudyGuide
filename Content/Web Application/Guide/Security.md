@@ -1273,6 +1273,171 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
    * authorization code
    * implicit
 
-1. What is authorization code grant type?  
+1. What are the main OAuth scopes?  
+**Expected Answer**: For any OAuth grant type, the client application has to specify which data it wants to access and what kind of operations it wants to perform. It does this using the scope parameter of the authorization request it sends to the OAuth service.
+
+1. What is the authorization code grant type?  
+**Expected Answer**: In short, the client application and OAuth service first use redirects to exchange a series of browser-based HTTP requests that initiate the flow. The user is asked whether they consent to the requested access. If they accept, the client application is granted an "authorization code". The client application then exchanges this code with the OAuth service to receive an "access token", which they can use to make API calls to fetch the relevant user data. All communication that takes place from the code/token exchange onward is sent server-to-server over a secure, preconfigured back-channel and is, therefore, invisible to the end user. This secure channel is established when the client application first registers with the OAuth service. At this time, a client_secret is also generated, which the client application must use to authenticate itself when sending these server-to-server requests. As the most sensitive data (the access token and user data) is not sent via the browser, this grant type is arguably the most secure. Server-side applications should ideally always use this grant type if possible.
+
+1. What are the steps in the authorization code grant type?  
 **Expected Answer**: 
+
+   1. Authorization request
+   2. User login and consent
+   3. Authorization code grant
+   4. Access token request
+   5. Access token grant
+   6. API call
+   7. Resource grant
+
+1. What is the implicit grant type?  
+**Expected Answer**: Rather than first obtaining an authorization code and then exchanging it for an access token, the client application receives the access token immediately after the user gives their consent. When using the implicit grant type, all communication happens via browser redirects - there is no secure back-channel like in the authorization code flow. This means that the sensitive access token and the user's data are more exposed to potential attacks.
+
+1. What are the steps in the implicit grant type?  
+**Expected Answer**: 
+
+   1. Authorization request
+   2. User login and consent
+   3. Access token grant
+   4. API call
+   5. Resource grant
+
+1. Explain the authorization request step in the authorization code grant type.  
+**Expected Answer**: The client application sends a request to the OAuth service's `/authorization` endpoint asking for permission to access specific user data. 
+
+1. Explain the noteworthy parameters in the authorization request step in the authorization code grant type.  
+**Expected Answer**: 
+
+   * client_id: Mandatory parameter containing the unique identifier of the client application. This value is generated when the client application registers with the OAuth service.
+   * redirect_uri: The URI to which the user's browser should be redirected when sending the authorization code to the client application. Many OAuth attacks are based on exploiting flaws in the validation of this parameter.
+   * response_type: Determines which kind of response the client application is expecting and, therefore, which flow it wants to initiate. For the authorization code grant type, the value should be `code`.
+   * scope: Used to specify which subset of the user's data the client application wants to access.
+   * state: Stores a unique, unguessable value that is tied to the current session on the client application. The OAuth service should return this exact value in the response, along with the authorization code. This parameter serves as a form of CSRF token for the client application by making sure that the request to its `/callback` endpoint is from the same person who initiated the OAuth flow.
+
+1. Explain the user login and consent step in the authorization code grant type.  
+**Expected Answer**: When the authorization server receives the initial request, it will redirect the user to a login page, where they will be prompted to log in to their account with the OAuth provider. They will then be presented with a list of data that the client application wants to access. This is based on the scopes defined in the authorization request. The user can choose whether or not to consent to this access. Once the user has approved a given scope for a client application, this step will be completed automatically as long as the user still has a valid session with the OAuth service. In other words, the first time the user selects "Log in with social media", they will need to manually log in and give their consent, but if they revisit the client application later, they will often be able to log back in with a single click.
+
+1. Explain the authorization code grant step in the authorization code grant type.  
+**Expected Answer**: If the user consents to the requested access, their browser will be redirected to the `/callback` endpoint that was specified in the `redirect_uri` parameter of the authorization request. The resulting `GET` request will contain the authorization code as a query parameter. Depending on the configuration, it may also send the `state` parameter with the same value as in the authorization request.
+
+1. Explain the access token request step in the authorization code grant type.  
+**Expected Answer**: Once the client application receives the authorization code, it needs to exchange it for an access token. To do this, it sends a server-to-server `POST` request to the OAuth service's `/token` endpoint. All communication from this point on takes place in a secure back-channel and, therefore, cannot usually be observed or controlled by an attacker.
+
+1. Explain the noteworthy parameters in the access token request step in the authorization code grant type.  
+**Expected Answer**:
+
+   * client_secret: The client application must authenticate itself by including the secret key that it was assigned when registering with the OAuth service.
+   * grant_type: Used to make sure the new endpoint knows which grant type the client application wants to use. In this case, this should be set to `authorization_code`.
+
+1. Explain the access token grant step in the authorization code grant type.  
+**Expected Answer**: The OAuth service will validate the access token request. If everything is as expected, the server responds by granting the client application an access token with the requested scope.
+
+1. Explain the API call step in the authorization code grant type.  
+**Expected Answer**: Now the client application has the access code, it can finally fetch the user's data from the resource server. To do this, it makes an API call to the OAuth service's `/userinfo` endpoint. The access token is submitted in the `Authorization: Bearer` header to prove that the client application has permission to access this data.
+
+1. Explain the resource grant step in the authorization code grant type.  
+**Expected Answer**: The resource server should verify that the token is valid and that it belongs to the current client application. If so, it will respond by sending the requested resource i.e. the user's data based on the scope of the access token. The client application can finally use this data for its intended purpose. In the case of OAuth authentication, it will typically be used as an ID to grant the user an authenticated session, effectively logging them in.
+
+1. Explain the authorization request step in the implicit grant type.  
+**Expected Answer**: The implicit flow starts in much the same way as the authorization code flow. The only major difference is that the `response_type` parameter must be set to `token`.
+
+1. Explain the user login and consent step in the implicit grant type.  
+**Expected Answer**: The user logs in and decides whether to consent to the requested permissions or not. This process is exactly the same as for the authorization code flow.
+
+1. Explain the access token grant step in the implicit grant type.  
+**Expected Answer**: If the user gives their consent to the requested access, this is where things start to differ. The OAuth service will redirect the user's browser to the `redirect_uri` specified in the authorization request. However, instead of sending a query parameter containing an authorization code, it will send the access token and other token-specific data as a URL fragment. As the access token is sent in a URL fragment, it is never sent directly to the client application. Instead, the client application must use a suitable script to extract the fragment and store it.
+
+1. Explain the API call step in the implicit grant type.  
+**Expected Answer**: Once the client application has successfully extracted the access token from the URL fragment, it can use it to make API calls to the OAuth service's `/userinfo` endpoint. Unlike in the authorization code flow, this also happens via the browser.
+
+1. Explain the resource grant step in the implicit grant type.  
+**Expected Answer**: The resource server should verify that the token is valid and that it belongs to the current client application. If so, it will respond by sending the requested resource i.e. the user's data based on the scope associated with the access token. The client application can finally use this data for its intended purpose. In the case of OAuth authentication, it will typically be used as an ID to grant the user an authenticated session, effectively logging them in.
+
+1. How do OAuth authentication vulnerabilities arise?  
+**Expected Answer**: OAuth authentication vulnerabilities arise partly because the OAuth specification is relatively vague and flexible by design. Although there are a handful of mandatory components required for the basic functionality of each grant type, the vast majority of the implementation is completely optional. This includes many configuration settings that are necessary for keeping users' data secure. One of the other key issues with OAuth is the general lack of built-in security features. The security relies almost entirely on developers using the right combination of configuration options and implementing their own additional security measures on top, such as robust input validation. 
+
+1. What are some vulnerabilities in the OAuth client application?  
+**Expected Answer**: 
+
+   * Improper implementation of the implicit grant type
+   * Flawed CSRF protection
+
+1. Explain improper implementation of the implicit grant type?  
+**Expected Answer**: In this flow, the access token is sent from the OAuth service to the client application via the user's browser as a URL fragment. The client application then accesses the token using JavaScript. The trouble is, if the application wants to maintain the session after the user closes the page, it needs to store the current user data (normally a user ID and the access token) somewhere. To solve this problem, the client application will often submit this data to the server in a POST request and then assign the user a session cookie, effectively logging them in. This request is roughly equivalent to the form submission request that might be sent as part of a classic, password-based login. However, in this scenario, the server does not have any secrets or passwords to compare with the submitted data, which means that it is implicitly trusted. In the implicit flow, this POST request is exposed to attackers via their browser. As a result, this behavior can lead to a serious vulnerability if the client application doesn't properly check that the access token matches the other data in the request. In this case, an attacker can simply change the parameters sent to the server to impersonate any user.
+
+1. Explain flawed CSRF protection?  
+**Expected Answer**: The state parameter should ideally contain an unguessable value, such as the hash of something tied to the user's session when it first initiates the OAuth flow. This value is then passed back and forth between the client application and the OAuth service as a form of CSRF token for the client application. Consider a website that allows users to log in using either a classic, password-based mechanism or by linking their account to a social media profile using OAuth. In this case, if the application fails to use the state parameter, an attacker could potentially hijack a victim user's account on the client application by binding it to their own social media account.
+
+1. What are some vulnerabilities in the OAuth service?  
+**Expected Answer**: 
+
+   * Leaking authorization codes and access tokens
+   * Flawed scope validation
+   * Unverified user registration
+
+1. Explain leaking authorization codes and access tokens?  
+**Expected Answer**: By stealing a valid code or token, the attacker may be able to access the victim's data. Ultimately, this can completely compromise their account - the attacker could potentially log in as the victim user on any client application that is registered with this OAuth service. Depending on the grant type, either a code or token is sent via the victim's browser to the `/callback` endpoint specified in the `redirect_uri` parameter of the authorization request. If the OAuth service fails to validate this URI properly, an attacker may be able to construct a CSRF-like attack, tricking the victim's browser into initiating an OAuth flow that will send the code or token to an attacker-controlled `redirect_uri`. In the case of the authorization code flow, an attacker can potentially steal the victim's code before it is used. They can then send this code to the client application's legitimate `/callback` endpoint (the original `redirect_uri`) to get access to the user's account. Note that using `state` or `nonce` protection does not necessarily prevent these attacks because an attacker can generate new values from their own browser.
+
+1. Explain flawed redirect_uri validation?  
+**Expected Answer**: It is best practice for client applications to provide a whitelist of their genuine callback URIs when registering with the OAuth service. This way, when the OAuth service receives a new request, it can validate the `redirect_uri` parameter against this whitelist. In this case, supplying an external URI will likely result in an error. However, there may still be ways to bypass this validation.
+
+1. Explain stealing codes and access tokens via a proxy page?  
+**Expected Answer**: The key now is to use this knowledge to try and access a wider attack surface within the client application itself. In other words, try to work out whether you can change the `redirect_uri` parameter to point to any other pages on a whitelisted domain. Once you identify which other pages you are able to set as the redirect URI, you should audit them for additional vulnerabilities that you can potentially use to leak the code or token. For the authorization code flow, you need to find a vulnerability that gives you access to the query parameters, whereas for the implicit grant type, you need to extract the URL fragment.
+
+1. Explain flawed scope validation?  
+**Expected Answer**: 
+
+   * Scope upgrade (authorization code flow): As the attacker controls their client application, they can add another `scope` parameter to the code/token exchange request containing the additional `profile` scope. If the server does not validate this against the scope from the initial authorization request, it will sometimes generate an access token using the new scope and send this to the attacker's client application
+   * Scope upgrade (implicit flow): The access token is sent via the browser, which means an attacker can steal tokens associated with innocent client applications and use them directly. Once they have stolen an access token, they can send a normal browser-based request to the OAuth service's `/userinfo` endpoint, manually adding a new `scope` parameter in the process. Ideally, the OAuth service should validate this scope value against the one that was used when generating the token, but this isn't always the case. 
+
+1. How does OpenID Connect work?    
+**Expected Answer**: OpenID Connect slots neatly into the normal OAuth flows. From the client application's perspective, the key difference is that there is an additional, standardized set of scopes that are the same for all providers, and an extra response type: `id_token`.
+
+1. What are the OpenID Connect roles?    
+**Expected Answer**: The roles for OpenID Connect are essentially the same as for standard OAuth. The main difference is that the specification uses slightly different terminology.
+
+   * Relying party - The application that is requesting authentication of a user. This is synonymous with the OAuth client application.
+   * End user - The user who is being authenticated. This is synonymous with the OAuth resource owner.
+   * OpenID provider - An OAuth service that is configured to support OpenID Connect.
+
+1. What are the OpenID Connect claims and scopes?    
+**Expected Answer**: The term "claims" refers to the key:value pairs that represent information about the user on the resource server. One example of a claim could be "family_name":"Montoya". Unlike basic OAuth, whose scopes are unique to each provider, all OpenID Connect services use an identical set of scopes. In order to use OpenID Connect, the client application must specify the scope `openid` in the authorization request.
+
+1. In OpenID what is the ID token?  
+**Expected Answer**: The other main addition provided by OpenID Connect is the id_token response type. This returns a JSON web token (JWT) signed with a JSON web signature (JWS). The JWT payload contains a list of claims based on the scope that was initially requested. It also contains information about how and when the user was last authenticated by the OAuth service. The client application can use this to decide whether or not the user has been sufficiently authenticated. The main benefit of using id_token is the reduced number of requests that need to be sent between the client application and the OAuth service, which could provide better performance overall. Instead of having to get an access token and then request the user data separately, the ID token containing this data is sent to the client application immediately after the user has authenticated themselves. Rather than simply relying on a trusted channel, as happens in basic OAuth, the integrity of the data transmitted in an ID token is based on a JWT cryptographic signature. For this reason, the use of ID tokens may help protect against some man-in-the-middle attacks. However, given that the cryptographic keys for signature verification are transmitted over the same network channel (normally exposed on /.well-known/jwks.json), some attacks are still possible. Note that multiple response types are supported by OAuth, so it's perfectly acceptable for a client application to send an authorization request with both a basic OAuth response type and OpenID Connect's id_token response type: `id_token token`, `id_token code`.
+
+1. Explain unprotected dynamic client registration?  
+**Expected Answer**: If dynamic client registration is supported, the client application can register itself by sending a POST request to a dedicated `/registration` endpoint. The OpenID provider should require the client application to authenticate itself. However, some providers will allow dynamic client registration without any authentication, which enables an attacker to register their own malicious client application. This can have various consequences depending on how the values of these attacker-controllable properties are used. For example, you may have noticed that some of these properties can be provided as URIs. If any of these are accessed by the OpenID provider, this can potentially lead to second-order SSRF vulnerabilities unless additional security measures are in place.
+
+1. Explain allowing authorization requests by reference?  
+**Expected Answer**: Some OpenID providers give you the option to pass submitting of the required parameters for the authorization as a JSON web token (JWT) instead. If this feature is supported, you can send a single request_uri parameter pointing to a JSON web token that contains the rest of the OAuth parameters and their values. Depending on the configuration of the OAuth service, this request_uri parameter is another potential vector for SSRF.
+
+1. How to prevent OAuth authentication vulnerabilities?  
+**Expected Answer**: 
+
+   * [service providers] Require client applications to register a whitelist of valid redirect_uris
+   * [service providers] Enforce use of the state parameter
+   * [service providers] On the resource server, make sure you verify that the access token was issued to the same client_id that is making the request. You should also check the scope being requested to make sure that this matches the scope for which the token was originally granted
+   * [client applications] Use the state parameter even though it is not mandatory
+   * [client applications] Send a `redirect_uri` parameter not only to the `/authorization` endpoint, but also to the `/token` endpoint
+   * [client applications] Be careful with authorization codes - they may be leaked via Referer headers when external images, scripts, or CSS content is loaded
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
