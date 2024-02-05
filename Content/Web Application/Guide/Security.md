@@ -246,6 +246,67 @@
 4. How to secure your authentication mechanisms?
 
 **OAuth2**:
+1. What is OAuth?
+2. How does OAuth 2.0 work?  
+3. What is an OAuth grant type?  
+4. What are the main OAuth grant type? 
+5. What are the main OAuth scopes?
+6. What is the authorization code grant type?
+7. What are the steps in the authorization code grant type?
+8. What is the implicit grant type?  
+9. What are the steps in the implicit grant type?
+10. Explain the authorization request step in the authorization code grant type.
+11. Explain the noteworthy parameters in the authorization request step in the authorization code grant type.  
+12. Explain the user login and consent step in the authorization code grant type.  
+13. Explain the authorization code grant step in the authorization code grant type.
+14. Explain the access token request step in the authorization code grant type. 
+15. Explain the noteworthy parameters in the access token request step in the authorization code grant type.  
+16. Explain the access token grant step in the authorization code grant type.
+17. Explain the API call step in the authorization code grant type. 
+18. Explain the resource grant step in the authorization code grant type.  
+19. Explain the authorization request step in the implicit grant type.  
+20. Explain the user login and consent step in the implicit grant type. 
+21. Explain the access token grant step in the implicit grant type. 
+22. Explain the API call step in the implicit grant type.
+23. Explain the resource grant step in the implicit grant type. 
+24. How do OAuth authentication vulnerabilities arise? 
+25. What are some vulnerabilities in the OAuth client application?  
+26. Explain improper implementation of the implicit grant type? 
+27. Explain flawed CSRF protection?  
+28. What are some vulnerabilities in the OAuth service?  
+29. Explain leaking authorization codes and access tokens?  
+30. Explain flawed redirect_uri validation?  
+31. Explain stealing codes and access tokens via a proxy page? 
+32. Explain flawed scope validation?
+33. How does OpenID Connect work?    
+34. What are the OpenID Connect roles?
+35. What are the OpenID Connect claims and scopes? 
+36. In OpenID what is the ID token?  
+37. Explain unprotected dynamic client registration?  
+38. Explain allowing authorization requests by reference? 
+39. How to prevent OAuth authentication vulnerabilities? 
+
+**JWT**:
+1. What are JWTs?  
+2. What is the JWT format? 
+3. What is the JWT signature?
+4. What is JWT vs JWS vs JWE? 
+5. What are JWT attacks and their impacts?
+6. Explain exploiting flawed JWT signature verification?
+7. Explain brute-forcing secret keys? 
+8. Explain JWT header parameter injections?
+9. How to prevent JWT attacks?
+
+**HTTP Host Header**:
+1. What is the HTTP Host header?
+2. What is the purpose of the HTTP Host header?
+3. When multiple applications are accessible via the same IP address, what are the common scenarios?
+4. How does the HTTP Host header solve this problem of a shared IP address?
+5. What is an HTTP Host header attack?
+6. What are common potential vulnerabilities due to the Host header?
+7. How to test for vulnerabilities using the HTTP Host header?
+8. Explain routing-based SSRF in the Host header?
+9. How to prevent HTTP Host header attacks?
 
 
 ### Web Security
@@ -1422,19 +1483,94 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
    * [client applications] Send a `redirect_uri` parameter not only to the `/authorization` endpoint, but also to the `/token` endpoint
    * [client applications] Be careful with authorization codes - they may be leaked via Referer headers when external images, scripts, or CSS content is loaded
 
+#### JWT
 
+1. What are JWTs?  
+**Expected Answer**: JSON web tokens (JWTs) are a standardized format for sending cryptographically signed JSON data between systems. They can theoretically contain any kind of data, but are most commonly used to send information ("claims") about users as part of authentication, session handling, and access control mechanisms. Unlike with classic session tokens, all of the data that a server needs is stored client-side within the JWT itself. This makes JWTs a popular choice for highly distributed websites where users need to interact seamlessly with multiple back-end servers.
 
+1. What is the JWT format?  
+**Expected Answer**: A JWT consists of 3 parts: a header, a payload, and a signature. These are each separated by a dot. The header and payload parts of a JWT are just base64url-encoded JSON objects. The header contains metadata about the token itself, while the payload contains the actual "claims" about the user. In most cases, this data can be easily read or modified by anyone with access to the token. Therefore, the security of any JWT-based mechanism is heavily reliant on the cryptographic signature.
 
+1. What is the JWT signature?  
+**Expected Answer**: The server that issues the token typically generates the signature by hashing the header and payload. In some cases, they also encrypt the resulting hash. Either way, this process involves a secret signing key. This mechanism provides a way for servers to verify that none of the data within the token has been tampered with since it was issued: 
 
+   * As the signature is directly derived from the rest of the token, changing a single byte of the header or payload results in a mismatched signature.
+   * Without knowing the server's secret signing key, it shouldn't be possible to generate the correct signature for a given header or payload.
 
+1. What is JWT vs JWS vs JWE?  
+**Expected Answer**: The JWT specification is actually very limited. It only defines a format for representing information ("claims") as a JSON object that can be transferred between two parties. In practice, JWTs aren't really used as a standalone entity. The JWT spec is extended by both the JSON Web Signature (JWS) and JSON Web Encryption (JWE) specifications, which define concrete ways of actually implementing JWTs. In other words, a JWT is usually either a JWS or JWE token. When people use the term "JWT", they almost always mean a JWS token. JWEs are very similar, except that the actual contents of the token are encrypted rather than just encoded.
 
+1. What are JWT attacks and their impacts?  
+**Expected Answer**: JWT attacks involve a user sending modified JWTs to the server in order to achieve a malicious goal. Typically, this goal is to bypass authentication and access controls by impersonating another user who has already been authenticated. The impact of JWT attacks is usually severe. If an attacker is able to create their own valid tokens with arbitrary values, they may be able to escalate their own privileges or impersonate other users, taking full control of their accounts.
 
+1. Explain exploiting flawed JWT signature verification?  
+**Expected Answer**: By design, servers don't usually store any information about the JWTs that they issue. Instead, each token is an entirely self-contained entity. This has several advantages, but also introduces a fundamental problem - the server doesn't actually know anything about the original contents of the token, or even what the original signature was. Therefore, if the server doesn't verify the signature properly, there's nothing to stop an attacker from making arbitrary changes to the rest of the token.
 
+1. Explain brute-forcing secret keys?  
+**Expected Answer**: Some signing algorithms, such as HS256 (HMAC + SHA-256), use an arbitrary, standalone string as the secret key. Just like a password, it's crucial that this secret can't be easily guessed or brute-forced by an attacker. Otherwise, they may be able to create JWTs with any header and payload values they like, then use the key to re-sign the token with a valid signature. When implementing JWT applications, developers sometimes make mistakes like forgetting to change default or placeholder secrets. They may even copy and paste code snippets they find online, then forget to change a hardcoded secret that's provided as an example.
 
+1. Explain JWT header parameter injections?  
+**Expected Answer**: According to the JWS specification, only the `alg` header parameter is mandatory. In practice, however, JWT headers (also known as JOSE headers) often contain several other parameters. The following ones are of particular interest to attackers.
 
+   * `jwk` (JSON Web Key) - Provides an embedded JSON object representing the key.
+   * `jku` (JSON Web Key Set URL) - Provides a URL from which servers can fetch a set of keys containing the correct key.
+   * `kid` (Key ID) - Provides an ID that servers can use to identify the correct key in cases where there are multiple keys to choose from. Depending on the format of the key, this may have a matching `kid` parameter.
 
+1. How to prevent JWT attacks?  
+**Expected Answer**: 
 
+   * Use an up-to-date library for handling JWTs and make sure your developers fully understand how it works, along with any security implications. Modern libraries make it more difficult for you to inadvertently implement them insecurely, but this isn't foolproof due to the inherent flexibility of the related specifications.
+   * Make sure that you perform robust signature verification on any JWTs that you receive, and account for edge-cases such as JWTs signed using unexpected algorithms.
+   * Enforce a strict whitelist of permitted hosts for the jku header.
+   * Make sure that you're not vulnerable to path traversal or SQL injection via the kid header parameter.
 
+#### HTTP Host Header
+
+1. What is the HTTP Host header?  
+**Expected Answer**: The HTTP Host header is a mandatory request header as of HTTP/1.1. It specifies the domain name that the client wants to access. For example, when a user visits https://portswigger.net/web-security, their browser will compose a request containing a Host header as follows: `Host: portswigger.net`. In some cases, such as when the request has been forwarded by an intermediary system, the Host value may be altered before it reaches the intended back-end component.
+
+1. What is the purpose of the HTTP Host header?  
+**Expected Answer**: The purpose of the HTTP Host header is to help identify which back-end component the client wants to communicate with. If requests didn't contain Host headers, or if the Host header was malformed in some way, this could lead to issues when routing incoming requests to the intended application. Historically, this ambiguity didn't exist because each IP address would only host content for a single domain. Nowadays, largely due to the ever-growing trend for cloud-based solutions and outsourcing much of the related architecture, it is common for multiple websites and applications to be accessible at the same IP address. 
+
+1. When multiple applications are accessible via the same IP address, what are the common scenarios?  
+**Expected Answer**: 
+
+   * Virtual hosting: A single web server hosts multiple websites or applications. Although each of these distinct websites will have a different domain name, they all share a common IP address with the server. Websites hosted in this way on a single server are known as "virtual hosts".
+   * Routing traffic via an intermediary: Another common scenario is when websites are hosted on distinct back-end servers, but all traffic between the client and servers is routed through an intermediary system. This could be a simple load balancer or a reverse proxy server of some kind. This setup is especially prevalent in cases where clients access the website via a content delivery network (CDN).
+
+1. How does the HTTP Host header solve this problem of a shared IP address?  
+**Expected Answer**: The Host header is relied on to specify the intended recipient. When a browser sends the request, the target URL will resolve to the IP address of a particular server. When this server receives the request, it refers to the Host header to determine the intended back-end and forwards the request accordingly.
+
+1. What is an HTTP Host header attack?  
+**Expected Answer**: HTTP Host header attacks exploit vulnerable websites that handle the value of the Host header in an unsafe way. If the server implicitly trusts the Host header, and fails to validate or escape it properly, an attacker may be able to use this input to inject harmful payloads that manipulate server-side behavior. Attacks that involve injecting a payload directly into the Host header are often known as "Host header injection" attacks.
+
+1. What are common potential vulnerabilities due to the Host header?  
+**Expected Answer**: 
+
+   * Web cache poisoning
+   * Business logic flaws in specific functionality
+   * Routing-based SSRF
+   * Classic server-side vulnerabilities, such as SQL injection
+
+1. How to test for vulnerabilities using the HTTP Host header?  
+**Expected Answer**: 
+
+   * Supply an arbitrary Host header: Test what happens when you supply an arbitrary, unrecognized domain name via the Host header.
+   * Check for flawed validation: Some websites will validate whether the Host header matches the SNI from the TLS handshake, but doesn't mean there aren't parsing errors. 
+   * Inject duplicate Host headers: It is common for one of the two headers to be given precedence over the other one, effectively overriding its value. When systems disagree about which header is the correct one, this can lead to discrepancies that you may be able to exploit. 
+   * Supply an absolute URL: The ambiguity caused by supplying both an absolute URL and a Host header can also lead to discrepancies between different systems.
+   * Add line wrapping: Some servers will interpret the indented header as a wrapped line and, therefore, treat it as part of the preceding header's value. Other servers will ignore the indented header altogether. Due to the highly inconsistent handling of this case, there will often be discrepancies between different systems that process your request.
+
+1. Explain routing-based SSRF in the Host header?  
+**Expected Answer**: It is sometimes also possible to use the Host header to launch high-impact, routing-based SSRF attacks. Routing-based SSRF relies on exploiting the intermediary components that are prevalent in many cloud-based architectures. This includes in-house load balancers and reverse proxies. If they are insecurely configured to forward requests based on an unvalidated Host header, they can be manipulated into misrouting requests to an arbitrary system of the attacker's choice. 
+
+1. How to prevent HTTP Host header attacks?  
+**Expected Answer**: 
+
+   * Protect absolute URLs: require the current domain to be manually specified in a configuration file and refer to this value instead of the Host header. This approach would eliminate the threat of password reset poisoning.
+   * Validate the Host header: This should involve checking it against a whitelist of permitted domains and rejecting or redirecting any requests for unrecognized hosts.
+   * Don't support Host override headers: Do not support additional headers that may be used to construct these attacks, in particular `X-Forwarded-Host`.
+   * Whitelist permitted domains: To prevent routing-based attacks on internal infrastructure, you should configure your load balancer or any reverse proxies to forward requests only to a whitelist of permitted domains.
 
 
 
