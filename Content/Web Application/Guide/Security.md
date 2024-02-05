@@ -308,6 +308,14 @@
 8. Explain routing-based SSRF in the Host header?
 9. How to prevent HTTP Host header attacks?
 
+**File Upload**:
+1. What are file upload vulnerabilities?
+2. How do web servers handle requests for static files?
+3. Explain flawed file type validation in file uploads?
+4. Explain flawed validation of the file's contents in file uploads?
+5. How to prevent file upload vulnerabilities?  
+
+
 
 ### Web Security
 
@@ -1572,8 +1580,32 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
    * Don't support Host override headers: Do not support additional headers that may be used to construct these attacks, in particular `X-Forwarded-Host`.
    * Whitelist permitted domains: To prevent routing-based attacks on internal infrastructure, you should configure your load balancer or any reverse proxies to forward requests only to a whitelist of permitted domains.
 
+#### File Upload
 
+1. What are file upload vulnerabilities?  
+**Expected Answer**: File upload vulnerabilities are when a web server allows users to upload files to its filesystem without sufficiently validating things like their name, type, contents, or size. Failing to properly enforce restrictions on these could mean that even a basic image upload function can be used to upload arbitrary and potentially dangerous files instead. This could even include server-side script files that enable remote code execution.
 
+1. How do web servers handle requests for static files?  
+**Expected Answer**: The server parses the path in the request to identify the file extension. It then uses this to determine the type of the file being requested, typically by comparing it to a list of preconfigured mappings between extensions and MIME types. What happens next depends on the file type and the server's configuration.
+
+   * If this file type is non-executable, such as an image or a static HTML page, the server may just send the file's contents to the client in an HTTP response.
+   * If the file type is executable, such as a PHP file, and the server is configured to execute files of this type, it will assign variables based on the headers and parameters in the HTTP request before running the script. The resulting output may then be sent to the client in an HTTP response.
+   * If the file type is executable, but the server is not configured to execute files of this type, it will generally respond with an error. However, in some cases, the contents of the file may still be served to the client as plain text. Such misconfigurations can occasionally be exploited to leak source code and other sensitive information.
+
+1. Explain flawed file type validation in file uploads?  
+**Expected Answer**: The content type `multipart/form-data` is oftentimes used for file uploads. The message body is split into separate parts for each of the form's inputs. Each part contains a `Content-Disposition` header, which provides some basic information about the input field it relates to. These individual parts may also contain their own `Content-Type` header, which tells the server the MIME type of the data that was submitted using this input (e.g. `image/jpeg`). Manipulating the `Content-Type` header to unexpected types may uncover issues.
+
+1. Explain flawed validation of the file's contents in file uploads?  
+**Expected Answer**: Instead of implicitly trusting the `Content-Type` specified in a request, more secure servers try to verify that the contents of the file actually match what is expected. In the case of an image upload function, the server might try to verify certain intrinsic properties of an image, such as its dimensions. If you try uploading a PHP script, for example, it won't have any dimensions at all. Therefore, the server can deduce that it can't possibly be an image, and reject the upload accordingly. Similarly, certain file types may always contain a specific sequence of bytes in their header or footer. These can be used like a fingerprint or signature to determine whether the contents match the expected type. For example, JPEG files always begin with the bytes `FF D8 FF`. This is a much more robust way of validating the file type, but even this isn't foolproof. Using special tools, such as ExifTool, it can be trivial to create a polyglot JPEG file containing malicious code within its metadata.
+
+1. How to prevent file upload vulnerabilities?  
+**Expected Answer**: 
+
+   * Check the file extension against a whitelist of permitted extensions rather than a blacklist of prohibited ones. It's much easier to guess which extensions you might want to allow than it is to guess which ones an attacker might try to upload.
+   * Make sure the filename doesn't contain any substrings that may be interpreted as a directory or a traversal sequence (../).
+   * Rename uploaded files to avoid collisions that may cause existing files to be overwritten.
+   * Do not upload files to the server's permanent filesystem until they have been fully validated.
+   * As much as possible, use an established framework for preprocessing file uploads rather than attempting to write your own validation mechanisms.
 
 
 
