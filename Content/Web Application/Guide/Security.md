@@ -315,6 +315,24 @@
 4. Explain flawed validation of the file's contents in file uploads?
 5. How to prevent file upload vulnerabilities?  
 
+**DOM**:
+1. What is the DOM?
+2. What are some common DOM sources?
+3. Which sinks can lead to DOM-based vulnerabilities?
+4. What is DOM clobbering?  
+5. How to prevent DOM-clobbering attacks? 
+6. What is DOM-based HTML5-storage manipulation? 
+
+**Web Cache Poisoning**:
+1. What is web cache poisoning? 
+2. What is web cache?  
+3. What are cache keys? 
+4. What is the impact of a web cache poisoning attack? 
+5. How to identify and evaluate unkeyed inputs?
+6. What tooling is used to find unkeyed inputs?
+7. How to prevent web cache poisoning vulnerabilities? 
+8. What is the cache probing methodology when looking for cache implementation flaws?
+9. How to use web cache poisoning to deliver an XSS attack?
 
 
 ### Web Security
@@ -1606,6 +1624,88 @@ Manipulating the transport_url via a query parameter in the website URL. For exa
    * Rename uploaded files to avoid collisions that may cause existing files to be overwritten.
    * Do not upload files to the server's permanent filesystem until they have been fully validated.
    * As much as possible, use an established framework for preprocessing file uploads rather than attempting to write your own validation mechanisms.
+
+#### DOM
+
+1. What is the DOM?  
+**Expected Answer**: The Document Object Model (DOM) is a web browser's hierarchical representation of the elements on the page. Websites can use JavaScript to manipulate the nodes and objects of the DOM, as well as their properties. DOM manipulation in itself is not a problem. In fact, it is an integral part of how modern websites work. However, JavaScript that handles data insecurely can enable various attacks. DOM-based vulnerabilities arise when a website contains JavaScript that takes an attacker-controllable value, known as a source, and passes it into a dangerous function, known as a sink.
+
+1. What are some common DOM sources?  
+**Expected Answer**: 
+
+   * document.documentURI
+   * document.URL
+   * document.referrer
+   * history.replaceState
+   * localStorage
+   * sessionStorage
+
+1. Which sinks can lead to DOM-based vulnerabilities?  
+**Expected Answer**: 
+
+   * document.write(): DOM XSS
+   * window.location: Open redirection
+   * eval(): JavaScript injection
+   * postMessage(): Web message manipulation
+   * sessionStorage.setItem(): HTML5-storage manipulation
+   * JSON.parse(): Client-side JSON injection
+   * document.evaluate(): Client-side XPath injection
+
+1. What is DOM clobbering?  
+**Expected Answer**: DOM clobbering is a technique in which you inject HTML into a page to manipulate the DOM and ultimately change the behavior of JavaScript on the page. DOM clobbering is particularly useful in cases where XSS is not possible, but you can control some HTML on a page where the attributes `id` or `name` are whitelisted by the HTML filter. The most common form of DOM clobbering uses an anchor element to overwrite a global variable, which is then used by the application in an unsafe way, such as generating a dynamic script URL. The term clobbering comes from the fact that you are "clobbering" a global variable or property of an object and overwriting it with a DOM node or HTML collection instead. For example, you can use DOM objects to overwrite other JavaScript objects and exploit unsafe names, such as `submit`, to interfere with a form's actual `submit()` function.
+
+1. How to prevent DOM-clobbering attacks?  
+**Expected Answer**: Prevent DOM-clobbering attacks by implementing checks to make sure that objects or functions are what you expect them to be. For instance, you can check that the attributes property of a DOM node is actually an instance of NamedNodeMap. This ensures that the property is an attributes property and not a clobbered HTML element.
+
+   * Check that objects and functions are legitimate. If you are filtering the DOM, make sure you check that the object or function is not a DOM node.
+   * Avoid bad code patterns. Using global variables in conjunction with the logical OR operator should be avoided.
+   * Use a well-tested library, such as DOMPurify, that accounts for DOM-clobbering vulnerabilities.
+
+1. What is DOM-based HTML5-storage manipulation?  
+**Expected Answer**: HTML5-storage manipulation vulnerabilities arise when a script stores attacker-controllable data in the HTML5 storage of the web browser (either localStorage or sessionStorage). An attacker may be able to use this behavior to construct a URL that, if visited by another user, will cause the user's browser to store attacker-controllable data. This behavior does not in itself constitute a security vulnerability. However, if the application later reads data back from storage and processes it in an unsafe way, an attacker may be able to leverage the storage mechanism to deliver other DOM-based attacks, such as cross-site scripting and JavaScript injection.
+
+#### Web Cache Poisoning
+
+1. What is web cache poisoning?  
+**Expected Answer**: Web cache poisoning is an where an attacker exploits the behavior of a web server and cache so that a harmful HTTP response is served to other users. Web cache poisoning involves two phases. First, the attacker must work out how to elicit a response from the back-end server that inadvertently contains some kind of dangerous payload. Once successful, they need to make sure that their response is cached and subsequently served to the intended victims. 
+
+1. What is web cache?  
+**Expected Answer**: The cache sits between the server and the user, where it saves (caches) the responses to particular requests, usually for a fixed amount of time. If another user then sends an equivalent request, the cache simply serves a copy of the cached response directly to the user, without any interaction from the back-end.
+
+1. What are cache keys?  
+**Expected Answer**: When the cache receives an HTTP request, it first has to determine whether there is a cached response that it can serve directly, or whether it has to forward the request for handling by the back-end server. Caches identify equivalent requests by comparing a predefined subset of the request's components, known collectively as the "cache key". Typically, this would contain the request line and `Host` header. Components of the request that are not included in the cache key are said to be "unkeyed". If the cache key of an incoming request matches the key of a previous request, then the cache considers them to be equivalent. As a result, it will serve a copy of the cached response that was generated for the original request. This applies to all subsequent requests with the matching cache key, until the cached response expires.
+
+1. What is the impact of a web cache poisoning attack?  
+**Expected Answer**: Depends on two things:
+
+   * What exactly the attacker can successfully get cached: web cache poisoning is inextricably linked to how harmful the injected payload is.
+   * The amount of traffic on the affected page: The poisoned response will only be served to users who visit the affected page while the cache is poisoned. As a result, the impact can range from non-existent to massive depending on whether the page is popular or not. 
+
+1. How to identify and evaluate unkeyed inputs?  
+**Expected Answer**: Any web cache poisoning attack relies on manipulation of unkeyed inputs, such as headers. Web caches ignore unkeyed inputs when deciding whether to serve a cached response to the user. This behavior means that you can use them to inject your payload and elicit a "poisoned" response which, if cached, will be served to all users whose requests have the matching cache key. Therefore, the first step when constructing a web cache poisoning attack is identifying unkeyed inputs that are supported by the server. You can identify unkeyed inputs manually by adding random inputs to requests and observing whether or not they have an effect on the response.
+
+1. What tooling is used to find unkeyed inputs?  
+**Expected Answer**: Param Miner. To use Param Miner, you simply right-click on a request that you want to investigate and click "Guess headers". Param Miner then runs in the background, sending requests containing different inputs from its extensive, built-in list of headers.
+
+1. How to prevent web cache poisoning vulnerabilities?  
+**Expected Answer**: The definitive way to prevent web cache poisoning would clearly be to disable caching altogether. 
+
+   * If you are considering excluding something from the cache key for performance reasons, rewrite the request instead.
+   * Don't accept fat GET requests. Be aware that some third-party technologies may permit this by default.
+   * Patch client-side vulnerabilities even if they seem unexploitable. Some of these vulnerabilities might actually be exploitable due to unpredictable quirks in your cache's behavior. It could be a matter of time before someone finds a quirk, whether it be cache-based or otherwise, that makes this vulnerability exploitable.
+
+1. What is the cache probing methodology when looking for cache implementation flaws?  
+**Expected Answer**: The methodology of probing for cache implementation flaws differs slightly from the classic web cache poisoning methodology. These newer techniques rely on flaws in the specific implementation and configuration of the cache, which may vary dramatically from site to site. This means that you need a deeper understanding of the target cache and its behavior.
+
+   1. Identify a suitable cache oracle: A cache oracle is simply a page or endpoint that provides feedback about the cache's behavior
+   2. Probe key handling: look at any transformation that is taking place
+   3. Identify an exploitable gadget: often be classic client-side vulnerabilities, such as reflected XSS and open redirects
+
+1. How to use web cache poisoning to deliver an XSS attack?  
+**Expected Answer**: Unkeyed input is reflected in a cacheable response without proper sanitization. For example, `X-Forwarded-Host` header is being used to dynamically generate an Open Graph image URL, which is then reflected in the response. Crucially for web cache poisoning, the `X-Forwarded-Host` header is often unkeyed. In this example, the cache can potentially be poisoned with a response containing a simple XSS payload.
+
+
+
 
 
 
